@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         patientId: validatedData.patientId || null,
         title: validatedData.title,
         audioFileUrl,
-        status: 'RECORDING',
+        status: 'IN_PROGRESS',
       }
     })
 

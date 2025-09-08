@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { MedicalSpecialty, UserRole } from '@prisma/client'
+import { MedicalSpecialty, UserRole, DocumentType, ExportFormat, ConsultationStatus } from '@prisma/client'
 
 // User profile validation
 export const userProfileSchema = z.object({
@@ -28,14 +28,16 @@ export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>
 export const documentSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   content: z.string().min(1, 'Content is required'),
-  type: z.string().min(1, 'Document type is required'),
+  type: z.nativeEnum(DocumentType),
+  consultationId: z.string().optional(),
+  template: z.string().optional(),
 })
 
 export type DocumentInput = z.infer<typeof documentSchema>
 
 // Export validation
 export const exportSchema = z.object({
-  format: z.string().min(1, 'Export format is required'),
+  format: z.nativeEnum(ExportFormat),
   includeAudio: z.boolean().default(false),
   includeTranscription: z.boolean().default(true),
   includeNotes: z.boolean().default(true),
@@ -53,24 +55,26 @@ export const consultationSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   patientId: z.string().optional(),
   notes: z.string().optional(),
+  status: z.nativeEnum(ConsultationStatus).optional(),
 })
 
 export type ConsultationInput = z.infer<typeof consultationSchema>
 
 // Registration validation
-export const registrationSchema = z.object({
+export const registerSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   medicalSpecialty: z.nativeEnum(MedicalSpecialty),
   organization: z.string().optional(),
+  phone: z.string().optional(),
   gdprConsent: z.boolean().refine((val) => val === true, {
     message: 'GDPR consent is required',
   }),
 })
 
-export type RegistrationInput = z.infer<typeof registrationSchema>
+export type RegistrationInput = z.infer<typeof registerSchema>
 
 // Login validation
 export const loginSchema = z.object({
@@ -79,3 +83,13 @@ export const loginSchema = z.object({
 })
 
 export type LoginInput = z.infer<typeof loginSchema>
+
+// SOAP Notes validation
+export const soapNotesSchema = z.object({
+  subjective: z.string().min(1, 'Subjective is required'),
+  objective: z.string().min(1, 'Objective is required'),
+  assessment: z.string().min(1, 'Assessment is required'),
+  plan: z.string().min(1, 'Plan is required'),
+})
+
+export type SOAPNotesInput = z.infer<typeof soapNotesSchema>

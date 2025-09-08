@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         medicalSpecialty: validatedData.medicalSpecialty,
         organization: validatedData.organization,
         phone: validatedData.phone,
-        isEmailVerified: false, // Will be verified via email
+        emailVerified: false, // Will be verified via email
       }
     })
     

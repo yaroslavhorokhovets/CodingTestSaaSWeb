@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         type: validatedData.type,
         title: validatedData.title,
         content: encrypt(validatedData.content),
-        template: validatedData.template || null,
+        templateUsed: validatedData.template || null,
       }
     })
 

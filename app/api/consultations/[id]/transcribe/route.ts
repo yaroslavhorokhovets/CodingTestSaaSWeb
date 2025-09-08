@@ -85,9 +85,8 @@ export async function POST(
         where: { id: consultationId },
         data: {
           soapNotes: encrypt(JSON.stringify(soapNotes)),
-          medicalCodes: encrypt(JSON.stringify(medicalCoding)),
-          status: 'COMPLETED',
-          completedAt: new Date()
+          medicalCoding: encrypt(JSON.stringify(medicalCoding)),
+          status: 'COMPLETED'
         }
       })
 
