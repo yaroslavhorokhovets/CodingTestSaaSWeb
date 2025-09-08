@@ -1,5 +1,52 @@
-import { User, Patient, Consultation, Document, Export, AuditLog, MedicalSpecialty, ConsultationStatus, DocumentType, ExportFormat, UserRole } from '@prisma/client'
+// Define enums locally until Prisma client is generated
+export enum MedicalSpecialty {
+  GENERAL_PRACTICE = 'GENERAL_PRACTICE',
+  CARDIOLOGY = 'CARDIOLOGY',
+  DERMATOLOGY = 'DERMATOLOGY',
+  NEUROLOGY = 'NEUROLOGY',
+  PSYCHIATRY = 'PSYCHIATRY',
+  PEDIATRICS = 'PEDIATRICS',
+  GYNECOLOGY = 'GYNECOLOGY',
+  ORTHOPEDICS = 'ORTHOPEDICS',
+  RADIOLOGY = 'RADIOLOGY',
+  ANESTHESIOLOGY = 'ANESTHESIOLOGY',
+  EMERGENCY_MEDICINE = 'EMERGENCY_MEDICINE',
+  INTERNAL_MEDICINE = 'INTERNAL_MEDICINE',
+  SURGERY = 'SURGERY',
+  ONCOLOGY = 'ONCOLOGY',
+  ENDOCRINOLOGY = 'ENDOCRINOLOGY'
+}
 
+export enum UserRole {
+  DOCTOR = 'DOCTOR',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN'
+}
+
+export enum ConsultationStatus {
+  DRAFT = 'DRAFT',
+  IN_PROGRESS = 'IN_PROGRESS',
+  TRANSCRIBING = 'TRANSCRIBING',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  ARCHIVED = 'ARCHIVED'
+}
+
+export enum DocumentType {
+  PRESCRIPTION = 'PRESCRIPTION',
+  LETTER = 'LETTER',
+  REPORT = 'REPORT',
+  REFERRAL = 'REFERRAL',
+  CERTIFICATE = 'CERTIFICATE'
+}
+
+export enum ExportFormat {
+  PDF = 'PDF',
+  CSV = 'CSV',
+  FHIR = 'FHIR'
+}
+
+// Import Prisma types when available
 export type {
   User,
   Patient,
@@ -7,10 +54,7 @@ export type {
   Document,
   Export,
   AuditLog,
-}
-
-// Re-export enums as values, not types
-export { MedicalSpecialty, ConsultationStatus, DocumentType, ExportFormat, UserRole }
+} from '@prisma/client'
 
 export interface AuthUser {
   id: string
