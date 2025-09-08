@@ -6,9 +6,6 @@ import { exportSchema } from '@/lib/validation'
 import { ExportFormat } from '@prisma/client'
 import { decrypt } from '@/lib/encryption'
 import PDFDocument from 'pdfkit'
-import { createWriteStream } from 'fs'
-import { join } from 'path'
-import { writeFileSync } from 'fs'
 
 export async function POST(request: NextRequest) {
   try {
