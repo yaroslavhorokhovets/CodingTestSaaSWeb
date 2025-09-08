@@ -76,7 +76,15 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.user = user
+        token.user = {
+          id: user.id,
+          email: user.email || '',
+          firstName: (user as any).firstName || '',
+          lastName: (user as any).lastName || '',
+          medicalSpecialty: (user as any).medicalSpecialty || 'GENERAL_PRACTICE',
+          organization: (user as any).organization,
+          role: (user as any).role || 'PRACTITIONER'
+        }
       }
       return token
     },
@@ -89,7 +97,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/login',
-    signUp: '/auth/register',
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

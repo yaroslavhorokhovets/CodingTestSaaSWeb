@@ -9,7 +9,7 @@ import {
   MagnifyingGlassIcon,
   FunnelIcon,
   EyeIcon,
-  DownloadIcon
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
@@ -228,7 +228,7 @@ export default function DocumentsPage() {
                           <EyeIcon className="h-5 w-5" />
                         </button>
                         <button className="text-gray-600 hover:text-gray-700 p-1">
-                          <DownloadIcon className="h-5 w-5" />
+                          <ArrowDownTrayIcon className="h-5 w-5" />
                         </button>
                       </div>
                     </div>

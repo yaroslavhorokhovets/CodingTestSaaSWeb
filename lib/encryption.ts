@@ -12,9 +12,11 @@ export function encrypt(text: string): string {
   }
 }
 
-export function decrypt(encryptedText: string): string {
+export function decrypt(encryptedText: string | number | boolean | object | any[]): string {
   try {
-    const bytes = CryptoJS.AES.decrypt(encryptedText, ENCRYPTION_KEY)
+    // Handle different input types from Prisma JsonValue
+    const text = typeof encryptedText === 'string' ? encryptedText : JSON.stringify(encryptedText)
+    const bytes = CryptoJS.AES.decrypt(text, ENCRYPTION_KEY)
     const decrypted = bytes.toString(CryptoJS.enc.Utf8)
     return decrypted
   } catch (error) {

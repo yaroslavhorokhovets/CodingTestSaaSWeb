@@ -7,6 +7,33 @@ import { ExportFormat } from '@prisma/client'
 import { decrypt } from '@/lib/encryption'
 import PDFDocument from 'pdfkit'
 
+// Helper function to wrap text
+function wrapText(text: string, maxWidth: number): string[] {
+  const words = text.split(' ')
+  const lines: string[] = []
+  let currentLine = ''
+  
+  for (const word of words) {
+    const testLine = currentLine + (currentLine ? ' ' : '') + word
+    if (testLine.length <= maxWidth) {
+      currentLine = testLine
+    } else {
+      if (currentLine) {
+        lines.push(currentLine)
+        currentLine = word
+      } else {
+        lines.push(word)
+      }
+    }
+  }
+  
+  if (currentLine) {
+    lines.push(currentLine)
+  }
+  
+  return lines
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -215,7 +242,7 @@ async function generatePDF(consultations: any[], options: any, user: any): Promi
         // Split long text into multiple lines
         const maxWidth = 500
         const transcriptionText = transcription.substring(0, 500) + '...'
-        const lines = doc.splitTextToSize(transcriptionText, maxWidth)
+        const lines = wrapText(transcriptionText, maxWidth)
         doc.text(lines, 50, yPosition)
         yPosition += lines.length * 15 + 20
       }
@@ -228,7 +255,7 @@ async function generatePDF(consultations: any[], options: any, user: any): Promi
         doc.fontSize(9)
         
         const soapText = `S: ${soapNotes.subjective} | O: ${soapNotes.objective} | A: ${soapNotes.assessment} | P: ${soapNotes.plan}`
-        const soapLines = doc.splitTextToSize(soapText, 500)
+        const soapLines = wrapText(soapText, 500)
         doc.text(soapLines, 50, yPosition)
         yPosition += soapLines.length * 15 + 30
       }
@@ -275,7 +302,7 @@ async function generateCSV(consultations: any[], options: any): Promise<string> 
 }
 
 async function generateFHIR(consultations: any[], options: any, user: any): Promise<any> {
-  const bundle = {
+  const bundle: any = {
     resourceType: 'Bundle',
     type: 'document',
     timestamp: new Date().toISOString(),

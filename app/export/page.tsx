@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-hot-toast'
+import { ExportFormat } from '@prisma/client'
 import { 
   DocumentArrowDownIcon, 
   DocumentTextIcon,
@@ -18,7 +19,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { exportSchema, ExportInput } from '@/lib/validation'
 import { Consultation, Document } from '@/types'
-import { ExportFormat } from '@/types'
+import { ExportFormat } from '@prisma/client'
 
 const exportFormats = [
   { 
@@ -143,7 +144,7 @@ export default function ExportPage() {
   }
 
   const handleFormatChange = (format: string) => {
-    setValue('format', format)
+    setValue('format', format as ExportFormat)
   }
 
   if (isLoading) {

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { AIService } from '@/lib/ai'
 import { encrypt } from '@/lib/encryption'
+import { ConsultationStatus } from '@prisma/client'
 
 export async function POST(
   request: NextRequest,
@@ -46,7 +47,7 @@ export async function POST(
     // Update status to transcribing
     await prisma.consultation.update({
       where: { id: consultationId },
-      data: { status: 'TRANSCRIBING' }
+      data: { status: ConsultationStatus.TRANSCRIBING }
     })
 
     try {
@@ -64,7 +65,7 @@ export async function POST(
         where: { id: consultationId },
         data: {
           transcription: encrypt(mockTranscription),
-          status: 'PROCESSING'
+          status: ConsultationStatus.PROCESSING
         }
       })
 
@@ -86,7 +87,7 @@ export async function POST(
         data: {
           soapNotes: encrypt(JSON.stringify(soapNotes)),
           medicalCoding: encrypt(JSON.stringify(medicalCoding)),
-          status: 'COMPLETED'
+          status: ConsultationStatus.COMPLETED
         }
       })
 
@@ -122,7 +123,7 @@ export async function POST(
       // Update status to indicate error
       await prisma.consultation.update({
         where: { id: consultationId },
-        data: { status: 'COMPLETED' } // Still mark as completed even if AI failed
+        data: { status: ConsultationStatus.COMPLETED } // Still mark as completed even if AI failed
       })
 
       return NextResponse.json(

@@ -103,7 +103,9 @@ export default function ReviewConsultationPage({ params }: { params: { id: strin
 
   const handleCancel = () => {
     setIsEditing(false)
-    reset(soapNotes)
+    if (soapNotes) {
+      reset(soapNotes)
+    }
   }
 
   if (isLoading) {

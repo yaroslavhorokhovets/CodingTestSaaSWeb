@@ -75,6 +75,7 @@ export const registerSchema = z.object({
 })
 
 export type RegistrationInput = z.infer<typeof registerSchema>
+export type RegisterInput = RegistrationInput // Alias for backward compatibility
 
 // Login validation
 export const loginSchema = z.object({

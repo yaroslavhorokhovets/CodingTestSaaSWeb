@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-hot-toast'
+import { DocumentType } from '@prisma/client'
 import { 
   DocumentTextIcon, 
   PrinterIcon,
@@ -17,7 +18,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { documentSchema, DocumentInput } from '@/lib/validation'
 import { Consultation } from '@/types'
-import { DocumentType } from '@/types'
+import { DocumentType } from '@prisma/client'
 
 const documentTypes = [
   { value: DocumentType.PRESCRIPTION, label: 'Ordonnance', icon: '💊' },
@@ -140,7 +141,7 @@ export default function NewDocumentPage() {
 
   const handleTypeChange = (type: string) => {
     setSelectedType(type)
-    setValue('type', type)
+    setValue('type', type as DocumentType)
   }
 
   if (!session?.user) {

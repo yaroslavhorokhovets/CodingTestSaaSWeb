@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { consultationSchema } from '@/lib/validation'
+import { ConsultationStatus } from '@prisma/client'
 import { encrypt } from '@/lib/encryption'
 
 export async function POST(request: NextRequest) {
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
         patientId: validatedData.patientId || null,
         title: validatedData.title,
         audioFileUrl,
-        status: 'IN_PROGRESS',
+        status: ConsultationStatus.IN_PROGRESS,
       }
     })
 
