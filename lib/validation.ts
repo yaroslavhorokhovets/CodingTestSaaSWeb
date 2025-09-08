@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { MedicalSpecialty, DocumentType, ExportFormat } from '@prisma/client'
+import { MedicalSpecialty, ExportFormat } from '@prisma/client'
+import { DocumentType } from '@/types'
 
 export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),

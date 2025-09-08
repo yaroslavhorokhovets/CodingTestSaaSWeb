@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { AIService } from '@/lib/ai'
 import { decrypt } from '@/lib/encryption'
-import { DocumentType } from '@prisma/client'
+import { DocumentType } from '@/types'
 
 export async function POST(request: NextRequest) {
   try {

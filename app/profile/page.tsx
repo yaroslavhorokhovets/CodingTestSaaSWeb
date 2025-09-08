@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
+import { useLanguage } from '@/lib/language-context'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { 
   UserIcon, 
   LockClosedIcon,
@@ -19,30 +21,33 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { userProfileSchema, passwordChangeSchema, UserProfileInput, PasswordChangeInput } from '@/lib/validation'
 import { MedicalSpecialty } from '@prisma/client'
 
-const medicalSpecialties = [
-  { value: MedicalSpecialty.GENERAL_PRACTICE, label: 'Médecine générale' },
-  { value: MedicalSpecialty.CARDIOLOGY, label: 'Cardiologie' },
-  { value: MedicalSpecialty.DERMATOLOGY, label: 'Dermatologie' },
-  { value: MedicalSpecialty.NEUROLOGY, label: 'Neurologie' },
-  { value: MedicalSpecialty.PSYCHIATRY, label: 'Psychiatrie' },
-  { value: MedicalSpecialty.PEDIATRICS, label: 'Pédiatrie' },
-  { value: MedicalSpecialty.GYNECOLOGY, label: 'Gynécologie' },
-  { value: MedicalSpecialty.ORTHOPEDICS, label: 'Orthopédie' },
-  { value: MedicalSpecialty.RADIOLOGY, label: 'Radiologie' },
-  { value: MedicalSpecialty.ANESTHESIOLOGY, label: 'Anesthésiologie' },
-  { value: MedicalSpecialty.EMERGENCY_MEDICINE, label: 'Médecine d\'urgence' },
-  { value: MedicalSpecialty.INTERNAL_MEDICINE, label: 'Médecine interne' },
-  { value: MedicalSpecialty.SURGERY, label: 'Chirurgie' },
-  { value: MedicalSpecialty.ONCOLOGY, label: 'Oncologie' },
-  { value: MedicalSpecialty.ENDOCRINOLOGY, label: 'Endocrinologie' },
+const getMedicalSpecialties = (t: any) => [
+  { value: MedicalSpecialty.GENERAL_PRACTICE, label: t('profile.specialties.generalPractice') },
+  { value: MedicalSpecialty.CARDIOLOGY, label: t('profile.specialties.cardiology') },
+  { value: MedicalSpecialty.DERMATOLOGY, label: t('profile.specialties.dermatology') },
+  { value: MedicalSpecialty.NEUROLOGY, label: t('profile.specialties.neurology') },
+  { value: MedicalSpecialty.PSYCHIATRY, label: t('profile.specialties.psychiatry') },
+  { value: MedicalSpecialty.PEDIATRICS, label: t('profile.specialties.pediatrics') },
+  { value: MedicalSpecialty.GYNECOLOGY, label: t('profile.specialties.gynecology') },
+  { value: MedicalSpecialty.ORTHOPEDICS, label: t('profile.specialties.orthopedics') },
+  { value: MedicalSpecialty.RADIOLOGY, label: t('profile.specialties.radiology') },
+  { value: MedicalSpecialty.ANESTHESIOLOGY, label: t('profile.specialties.anesthesiology') },
+  { value: MedicalSpecialty.EMERGENCY_MEDICINE, label: t('profile.specialties.emergencyMedicine') },
+  { value: MedicalSpecialty.INTERNAL_MEDICINE, label: t('profile.specialties.internalMedicine') },
+  { value: MedicalSpecialty.SURGERY, label: t('profile.specialties.surgery') },
+  { value: MedicalSpecialty.ONCOLOGY, label: t('profile.specialties.oncology') },
+  { value: MedicalSpecialty.ENDOCRINOLOGY, label: t('profile.specialties.endocrinology') },
 ]
 
 export default function ProfilePage() {
   const { data: session, update } = useSession()
   const router = useRouter()
+  const { t, locale } = useLanguage()
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'billing'>('profile')
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  
+  const medicalSpecialties = getMedicalSpecialties(t)
 
   const {
     register: registerProfile,
@@ -141,18 +146,20 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Non autorisé</h2>
-          <p className="text-gray-600 mt-2">Veuillez vous connecter pour accéder à cette page.</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('auth.unauthorized')}</h2>
+          <p className="text-gray-600 mt-2">
+            {locale === 'fr' ? 'Veuillez vous connecter pour accéder à cette page.' : 'Please log in to access this page.'}
+          </p>
         </div>
       </div>
     )
   }
 
   const tabs = [
-    { id: 'profile', name: 'Profil', icon: UserIcon },
-    { id: 'security', name: 'Sécurité', icon: LockClosedIcon },
-    { id: 'notifications', name: 'Notifications', icon: BellIcon },
-    { id: 'billing', name: 'Facturation', icon: CreditCardIcon },
+    { id: 'profile', name: t('navigation.profile'), icon: UserIcon },
+    { id: 'security', name: t('navigation.security'), icon: LockClosedIcon },
+    { id: 'notifications', name: t('navigation.notifications'), icon: BellIcon },
+    { id: 'billing', name: t('navigation.billing'), icon: CreditCardIcon },
   ]
 
   return (
@@ -162,11 +169,15 @@ export default function ProfilePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Profil et paramètres</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t('profile.title')}</h1>
               <p className="text-sm text-gray-600 mt-1">
-                Gérez vos informations personnelles et vos préférences
+                {locale === 'fr' 
+                  ? 'Gérez vos informations personnelles et vos préférences'
+                  : 'Manage your personal information and preferences'
+                }
               </p>
             </div>
+            <LanguageSwitcher />
           </div>
         </div>
       </header>
@@ -202,12 +213,12 @@ export default function ProfilePage() {
             {activeTab === 'profile' && (
               <div className="space-y-6">
                 <div className="card">
-                  <h2 className="text-lg font-medium text-gray-900 mb-6">Informations personnelles</h2>
+                  <h2 className="text-lg font-medium text-gray-900 mb-6">{t('profile.personalInfo')}</h2>
                   <form onSubmit={handleSubmitProfile(onSubmitProfile)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                          Prénom
+                          {t('common.firstName')}
                         </label>
                         <input
                           {...registerProfile('firstName')}
@@ -221,7 +232,7 @@ export default function ProfilePage() {
 
                       <div>
                         <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                          Nom
+                          {t('common.lastName')}
                         </label>
                         <input
                           {...registerProfile('lastName')}
@@ -236,7 +247,7 @@ export default function ProfilePage() {
 
                     <div>
                       <label htmlFor="medicalSpecialty" className="block text-sm font-medium text-gray-700">
-                        Spécialité médicale
+                        {t('profile.medicalSpecialty')}
                       </label>
                       <select
                         {...registerProfile('medicalSpecialty')}
@@ -255,13 +266,13 @@ export default function ProfilePage() {
 
                     <div>
                       <label htmlFor="organization" className="block text-sm font-medium text-gray-700">
-                        Établissement
+                        {t('common.organization')}
                       </label>
                       <input
                         {...registerProfile('organization')}
                         type="text"
                         className="input-field mt-1"
-                        placeholder="CHU de Paris, Cabinet privé..."
+                        placeholder={locale === 'fr' ? 'CHU de Paris, Cabinet privé...' : 'Paris Hospital, Private practice...'}
                       />
                       {profileErrors.organization && (
                         <p className="mt-1 text-sm text-red-600">{profileErrors.organization.message}</p>
@@ -270,13 +281,13 @@ export default function ProfilePage() {
 
                     <div>
                       <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                        Téléphone
+                        {t('common.phone')}
                       </label>
                       <input
                         {...registerProfile('phone')}
                         type="tel"
                         className="input-field mt-1"
-                        placeholder="01 23 45 67 89"
+                        placeholder={locale === 'fr' ? '01 23 45 67 89' : '+1 234 567 8900'}
                       />
                       {profileErrors.phone && (
                         <p className="mt-1 text-sm text-red-600">{profileErrors.phone.message}</p>
@@ -292,12 +303,12 @@ export default function ProfilePage() {
                         {isSaving ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Sauvegarde...
+                            {locale === 'fr' ? 'Sauvegarde...' : 'Saving...'}
                           </>
                         ) : (
                           <>
                             <PencilIcon className="h-4 w-4 mr-2" />
-                            Sauvegarder
+                            {t('common.save')}
                           </>
                         )}
                       </button>
@@ -307,20 +318,20 @@ export default function ProfilePage() {
 
                 {/* Account Information */}
                 <div className="card">
-                  <h2 className="text-lg font-medium text-gray-900 mb-4">Informations du compte</h2>
+                  <h2 className="text-lg font-medium text-gray-900 mb-4">{t('profile.accountInfo')}</h2>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Email</span>
+                      <span className="text-sm text-gray-600">{t('common.email')}</span>
                       <span className="text-sm font-medium text-gray-900">{session.user.email}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Rôle</span>
+                      <span className="text-sm text-gray-600">{t('profile.role')}</span>
                       <span className="text-sm font-medium text-gray-900">{session.user.role}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Dernière connexion</span>
+                      <span className="text-sm text-gray-600">{t('profile.lastLogin')}</span>
                       <span className="text-sm font-medium text-gray-900">
-                        {new Date().toLocaleDateString('fr-FR')}
+                        {new Date().toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
                       </span>
                     </div>
                   </div>
@@ -332,11 +343,11 @@ export default function ProfilePage() {
             {activeTab === 'security' && (
               <div className="space-y-6">
                 <div className="card">
-                  <h2 className="text-lg font-medium text-gray-900 mb-6">Changer le mot de passe</h2>
+                  <h2 className="text-lg font-medium text-gray-900 mb-6">{t('profile.changePassword')}</h2>
                   <form onSubmit={handleSubmitPassword(onSubmitPassword)} className="space-y-6">
                     <div>
                       <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
-                        Mot de passe actuel
+                        {t('profile.currentPassword')}
                       </label>
                       <input
                         {...registerPassword('currentPassword')}
@@ -350,7 +361,7 @@ export default function ProfilePage() {
 
                     <div>
                       <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
-                        Nouveau mot de passe
+                        {t('profile.newPassword')}
                       </label>
                       <input
                         {...registerPassword('newPassword')}
@@ -364,7 +375,7 @@ export default function ProfilePage() {
 
                     <div>
                       <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                        Confirmer le nouveau mot de passe
+                        {t('profile.confirmPassword')}
                       </label>
                       <input
                         {...registerPassword('confirmPassword')}
@@ -385,12 +396,12 @@ export default function ProfilePage() {
                         {isSaving ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Mise à jour...
+                            {locale === 'fr' ? 'Mise à jour...' : 'Updating...'}
                           </>
                         ) : (
                           <>
                             <LockClosedIcon className="h-4 w-4 mr-2" />
-                            Changer le mot de passe
+                            {t('profile.changePassword')}
                           </>
                         )}
                       </button>
@@ -400,23 +411,25 @@ export default function ProfilePage() {
 
                 {/* Security Status */}
                 <div className="card">
-                  <h2 className="text-lg font-medium text-gray-900 mb-4">État de la sécurité</h2>
+                  <h2 className="text-lg font-medium text-gray-900 mb-4">{t('profile.securityStatus')}</h2>
                   <div className="space-y-4">
                     <div className="flex items-center">
                       <CheckCircleIcon className="h-5 w-5 text-green-400 mr-3" />
-                      <span className="text-sm text-gray-900">Connexion sécurisée HTTPS</span>
+                      <span className="text-sm text-gray-900">{t('profile.secureConnection')}</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircleIcon className="h-5 w-5 text-green-400 mr-3" />
-                      <span className="text-sm text-gray-900">Données chiffrées AES-256</span>
+                      <span className="text-sm text-gray-900">{t('profile.dataEncrypted')}</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircleIcon className="h-5 w-5 text-green-400 mr-3" />
-                      <span className="text-sm text-gray-900">Journalisation des accès</span>
+                      <span className="text-sm text-gray-900">{t('profile.accessLogging')}</span>
                     </div>
                     <div className="flex items-center">
                       <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400 mr-3" />
-                      <span className="text-sm text-gray-900">Authentification à deux facteurs (optionnel)</span>
+                      <span className="text-sm text-gray-900">
+                        {locale === 'fr' ? 'Authentification à deux facteurs (optionnel)' : 'Two-factor authentication (optional)'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -427,12 +440,14 @@ export default function ProfilePage() {
             {activeTab === 'notifications' && (
               <div className="space-y-6">
                 <div className="card">
-                  <h2 className="text-lg font-medium text-gray-900 mb-6">Préférences de notification</h2>
+                  <h2 className="text-lg font-medium text-gray-900 mb-6">{t('profile.notificationPreferences')}</h2>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-sm font-medium text-gray-900">Notifications par email</h3>
-                        <p className="text-sm text-gray-600">Recevoir des notifications importantes par email</p>
+                        <h3 className="text-sm font-medium text-gray-900">{t('profile.emailNotifications')}</h3>
+                        <p className="text-sm text-gray-600">
+                          {locale === 'fr' ? 'Recevoir des notifications importantes par email' : 'Receive important notifications by email'}
+                        </p>
                       </div>
                       <input
                         type="checkbox"
@@ -442,8 +457,10 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-sm font-medium text-gray-900">Rappels de consultation</h3>
-                        <p className="text-sm text-gray-600">Notifications pour les consultations en attente</p>
+                        <h3 className="text-sm font-medium text-gray-900">{t('profile.consultationReminders')}</h3>
+                        <p className="text-sm text-gray-600">
+                          {locale === 'fr' ? 'Notifications pour les consultations en attente' : 'Notifications for pending consultations'}
+                        </p>
                       </div>
                       <input
                         type="checkbox"
@@ -453,8 +470,10 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-sm font-medium text-gray-900">Mises à jour système</h3>
-                        <p className="text-sm text-gray-600">Informations sur les nouvelles fonctionnalités</p>
+                        <h3 className="text-sm font-medium text-gray-900">{t('profile.systemUpdates')}</h3>
+                        <p className="text-sm text-gray-600">
+                          {locale === 'fr' ? 'Informations sur les nouvelles fonctionnalités' : 'Information about new features'}
+                        </p>
                       </div>
                       <input
                         type="checkbox"
@@ -470,40 +489,46 @@ export default function ProfilePage() {
             {activeTab === 'billing' && (
               <div className="space-y-6">
                 <div className="card">
-                  <h2 className="text-lg font-medium text-gray-900 mb-6">Abonnement</h2>
+                  <h2 className="text-lg font-medium text-gray-900 mb-6">{t('profile.subscription')}</h2>
                   <div className="bg-medical-50 border border-medical-200 rounded-lg p-4">
                     <div className="flex items-center">
                       <ShieldCheckIcon className="h-5 w-5 text-medical-600 mr-3" />
                       <div>
-                        <h3 className="text-sm font-medium text-medical-800">Plan Professionnel</h3>
-                        <p className="text-sm text-medical-700">Accès complet à toutes les fonctionnalités</p>
+                        <h3 className="text-sm font-medium text-medical-800">
+                          {locale === 'fr' ? 'Plan Professionnel' : 'Professional Plan'}
+                        </h3>
+                        <p className="text-sm text-medical-700">
+                          {locale === 'fr' ? 'Accès complet à toutes les fonctionnalités' : 'Full access to all features'}
+                        </p>
                       </div>
                     </div>
                   </div>
                   
                   <div className="mt-6 space-y-4">
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Statut</span>
-                      <span className="text-sm font-medium text-green-600">Actif</span>
+                      <span className="text-sm text-gray-600">{t('common.status')}</span>
+                      <span className="text-sm font-medium text-green-600">{t('common.active')}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Prochaine facturation</span>
+                      <span className="text-sm text-gray-600">{t('profile.nextBilling')}</span>
                       <span className="text-sm font-medium text-gray-900">
-                        {new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')}
+                        {new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Montant</span>
-                      <span className="text-sm font-medium text-gray-900">99€/mois</span>
+                      <span className="text-sm text-gray-600">{t('profile.amount')}</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {locale === 'fr' ? '99€/mois' : '$99/month'}
+                      </span>
                     </div>
                   </div>
 
                   <div className="mt-6 flex space-x-4">
                     <button className="btn-secondary">
-                      Modifier l'abonnement
+                      {t('profile.modifySubscription')}
                     </button>
                     <button className="btn-secondary">
-                      Historique des factures
+                      {t('profile.billingHistory')}
                     </button>
                   </div>
                 </div>

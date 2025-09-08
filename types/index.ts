@@ -9,9 +9,23 @@ export type {
   AuditLog,
   MedicalSpecialty,
   ConsultationStatus,
-  DocumentType,
   ExportFormat,
   UserRole,
+}
+
+export enum DocumentType {
+  PRESCRIPTION = 'PRESCRIPTION',
+  LETTER = 'LETTER',
+  REPORT = 'REPORT',
+  REFERRAL = 'REFERRAL',
+  CERTIFICATE = 'CERTIFICATE',
+}
+
+export enum ConsultationStatus {
+  DRAFT = 'DRAFT',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export interface AuthUser {
