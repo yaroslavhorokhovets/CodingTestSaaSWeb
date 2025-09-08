@@ -56,6 +56,8 @@
     "remark-gfm": "^4.0.0",
     "react-syntax-highlighter": "^15.5.0",
     "@types/react-syntax-highlighter": "^15.5.11",
+    "pdfkit": "^0.14.0",
+    "@types/pdfkit": "^0.12.12"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
@@ -63,7 +65,6 @@
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "prettier": "^3.1.1",
-    "prettier-plugin-tailwindcss": "^0.5.9",
-    "@tailwindcss/forms": "^0.5.7"
+    "prettier-plugin-tailwindcss": "^0.5.9"
   }
 }

@@ -9,7 +9,6 @@ import {
   CheckCircleIcon, 
   ExclamationTriangleIcon,
   PencilIcon,
-  SaveIcon,
   ArrowRightIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
@@ -180,7 +179,7 @@ export default function ReviewConsultationPage({ params }: { params: { id: strin
                         className="btn-medical text-sm"
                         disabled={isSaving}
                       >
-                        <SaveIcon className="h-4 w-4 mr-2" />
+                        <PencilIcon className="h-4 w-4 mr-2" />
                         {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
                       </button>
                     </div>

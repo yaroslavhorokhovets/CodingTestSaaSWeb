@@ -12,8 +12,7 @@ import {
   CreditCardIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  PencilIcon,
-  SaveIcon
+  PencilIcon
 } from '@heroicons/react/24/outline'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -297,7 +296,7 @@ export default function ProfilePage() {
                           </>
                         ) : (
                           <>
-                            <SaveIcon className="h-4 w-4 mr-2" />
+                            <PencilIcon className="h-4 w-4 mr-2" />
                             Sauvegarder
                           </>
                         )}
