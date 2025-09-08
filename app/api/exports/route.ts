@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db'
 import { exportSchema } from '@/lib/validation'
 import { ExportFormat } from '@prisma/client'
 import { decrypt } from '@/lib/encryption'
-import PDFDocument from 'pdfkit'
+import jsPDF from 'jspdf'
 
 export async function POST(request: NextRequest) {
   try {
@@ -169,66 +169,63 @@ export async function GET(request: NextRequest) {
 }
 
 async function generatePDF(consultations: any[], options: any, user: any): Promise<Buffer> {
-  const doc = new PDFDocument()
-  const buffers: Buffer[] = []
+  const doc = new jsPDF()
   
-  doc.on('data', buffers.push.bind(buffers))
+  // PDF Header
+  doc.setFontSize(20)
+  doc.text('Export des Consultations', 20, 30)
   
-  return new Promise((resolve, reject) => {
-    doc.on('end', () => {
-      const pdfData = Buffer.concat(buffers)
-      resolve(pdfData)
-    })
+  doc.setFontSize(12)
+  doc.text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, 20, 50)
+  doc.text(`Médecin: Dr. ${user.firstName} ${user.lastName}`, 20, 65)
+  doc.text(`Spécialité: ${user.medicalSpecialty}`, 20, 80)
+  
+  let yPosition = 100
+
+  consultations.forEach((consultation, index) => {
+    if (yPosition > 250) {
+      doc.addPage()
+      yPosition = 30
+    }
+
+    doc.setFontSize(14)
+    doc.text(`${index + 1}. ${consultation.title}`, 20, yPosition)
+    yPosition += 15
     
-    doc.on('error', reject)
+    doc.setFontSize(10)
+    doc.text(`Date: ${new Date(consultation.createdAt).toLocaleDateString('fr-FR')}`, 20, yPosition)
+    yPosition += 10
 
-    // PDF Header
-    doc.fontSize(20).text('Export des Consultations', 50, 50)
-    doc.fontSize(12).text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, 50, 80)
-    doc.fontSize(12).text(`Médecin: Dr. ${user.firstName} ${user.lastName}`, 50, 100)
-    doc.fontSize(12).text(`Spécialité: ${user.medicalSpecialty}`, 50, 120)
-    
-    let yPosition = 150
-
-    consultations.forEach((consultation, index) => {
-      if (yPosition > 700) {
-        doc.addPage()
-        yPosition = 50
-      }
-
-      doc.fontSize(14).text(`${index + 1}. ${consultation.title}`, 50, yPosition)
-      yPosition += 25
+    if (options.includeTranscription && consultation.transcription) {
+      const transcription = decrypt(consultation.transcription)
+      doc.setFontSize(10)
+      doc.text('Transcription:', 20, yPosition)
+      yPosition += 10
+      doc.setFontSize(9)
       
-      doc.fontSize(10).text(`Date: ${new Date(consultation.createdAt).toLocaleDateString('fr-FR')}`, 50, yPosition)
-      yPosition += 15
+      // Split long text into multiple lines
+      const lines = doc.splitTextToSize(transcription.substring(0, 500) + '...', 170)
+      doc.text(lines, 20, yPosition)
+      yPosition += lines.length * 5 + 10
+    }
 
-      if (options.includeTranscription && consultation.transcription) {
-        const transcription = decrypt(consultation.transcription)
-        doc.fontSize(10).text('Transcription:', 50, yPosition)
-        yPosition += 15
-        doc.fontSize(9).text(transcription.substring(0, 500) + '...', 50, yPosition, { width: 500 })
-        yPosition += 100
-      }
+    if (options.includeNotes && consultation.soapNotes) {
+      const soapNotes = JSON.parse(decrypt(consultation.soapNotes))
+      doc.setFontSize(10)
+      doc.text('Notes SOAP:', 20, yPosition)
+      yPosition += 10
+      doc.setFontSize(9)
+      
+      const soapText = `S: ${soapNotes.subjective} | O: ${soapNotes.objective} | A: ${soapNotes.assessment} | P: ${soapNotes.plan}`
+      const soapLines = doc.splitTextToSize(soapText, 170)
+      doc.text(soapLines, 20, yPosition)
+      yPosition += soapLines.length * 5 + 15
+    }
 
-      if (options.includeNotes && consultation.soapNotes) {
-        const soapNotes = JSON.parse(decrypt(consultation.soapNotes))
-        doc.fontSize(10).text('Notes SOAP:', 50, yPosition)
-        yPosition += 15
-        doc.fontSize(9).text(`S: ${soapNotes.subjective}`, 50, yPosition, { width: 500 })
-        yPosition += 50
-        doc.fontSize(9).text(`O: ${soapNotes.objective}`, 50, yPosition, { width: 500 })
-        yPosition += 50
-        doc.fontSize(9).text(`A: ${soapNotes.assessment}`, 50, yPosition, { width: 500 })
-        yPosition += 50
-        doc.fontSize(9).text(`P: ${soapNotes.plan}`, 50, yPosition, { width: 500 })
-        yPosition += 80
-      }
-
-      yPosition += 20
-    })
-
-    doc.end()
+    yPosition += 10
   })
+
+  return Buffer.from(doc.output('arraybuffer'))
 }
 
 async function generateCSV(consultations: any[], options: any): Promise<string> {
