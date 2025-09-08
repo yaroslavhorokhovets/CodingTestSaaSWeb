@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
         // Update last login
         await prisma.user.update({
           where: { id: user.id },
-          data: { lastLoginAt: new Date() }
+          data: { updatedAt: new Date() }
         })
 
         // Create audit log

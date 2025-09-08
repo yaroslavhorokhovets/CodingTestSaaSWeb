@@ -56,8 +56,8 @@ export default function ReviewConsultationPage({ params }: { params: { id: strin
           reset(notes)
         }
         
-        if (data.data.medicalCodes) {
-          const codes = JSON.parse(data.data.medicalCodes)
+        if (data.data.medicalCoding) {
+          const codes = JSON.parse(data.data.medicalCoding)
           setMedicalCoding(codes)
         }
       }

@@ -273,26 +273,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input
-                  {...register('termsAccepted')}
-                  type="checkbox"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="termsAccepted" className="text-gray-700">
-                  J'accepte les{' '}
-                  <Link href="/terms" className="text-primary-600 hover:text-primary-500">
-                    conditions d'utilisation
-                  </Link>
-                </label>
-                {errors.termsAccepted && (
-                  <p className="mt-1 text-sm text-red-600">{errors.termsAccepted.message}</p>
-                )}
-              </div>
-            </div>
           </div>
 
           <div>
