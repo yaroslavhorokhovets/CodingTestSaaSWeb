@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { DashboardStats } from '@/types'
@@ -12,7 +12,8 @@ import {
   UserGroupIcon,
   ArrowTrendingUpIcon,
   PlusIcon,
-  DocumentArrowDownIcon
+  DocumentArrowDownIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
@@ -80,6 +81,13 @@ export default function DashboardPage() {
                 <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
                 Connexion sécurisée
               </div>
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" />
+                Déconnexion
+              </button>
             </div>
           </div>
         </div>

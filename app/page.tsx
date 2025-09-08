@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { 
   HeartIcon, 
   MicrophoneIcon, 
@@ -13,32 +12,8 @@ import {
 } from '@heroicons/react/24/outline'
 
 export default function HomePage() {
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const router = useRouter()
-
-  useEffect(() => {
-    if (status === 'loading') return // Still loading
-    
-    if (session) {
-      // User is authenticated, redirect to dashboard
-      router.push('/dashboard')
-    } else {
-      // User is not authenticated, redirect to login
-      router.push('/auth/login')
-    }
-  }, [session, status, router])
-
-  // Show loading state while redirecting
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-medical-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-primary-600 font-medium">Chargement...</p>
-        </div>
-      </div>
-    )
-  }
 
   // Landing page for unauthenticated users
   return (
@@ -54,18 +29,43 @@ export default function HomePage() {
               </span>
             </div>
             <div className="flex space-x-4">
-              <button
-                onClick={() => router.push('/auth/login')}
-                className="text-primary-600 hover:text-primary-700 font-medium"
-              >
-                Connexion
-              </button>
-              <button
-                onClick={() => router.push('/auth/register')}
-                className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
-              >
-                Inscription
-              </button>
+              {session ? (
+                <>
+                  <button
+                    onClick={() => router.push('/dashboard')}
+                    className="text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Tableau de bord
+                  </button>
+                  <button
+                    onClick={() => router.push('/profile')}
+                    className="text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Mon profil
+                  </button>
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Déconnexion
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => router.push('/auth/login')}
+                    className="text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Connexion
+                  </button>
+                  <button
+                    onClick={() => router.push('/auth/register')}
+                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    Inscription
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -84,18 +84,37 @@ export default function HomePage() {
             et génération de documents sécurisés.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => router.push('/auth/register')}
-              className="bg-primary-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors"
-            >
-              Commencer gratuitement
-            </button>
-            <button
-              onClick={() => router.push('/auth/login')}
-              className="border border-primary-600 text-primary-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-50 transition-colors"
-            >
-              Se connecter
-            </button>
+            {session ? (
+              <>
+                <button
+                  onClick={() => router.push('/dashboard')}
+                  className="bg-primary-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors"
+                >
+                  Accéder au tableau de bord
+                </button>
+                <button
+                  onClick={() => router.push('/consultation/new')}
+                  className="border border-primary-600 text-primary-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-50 transition-colors"
+                >
+                  Nouvelle consultation
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => router.push('/auth/register')}
+                  className="bg-primary-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors"
+                >
+                  Commencer gratuitement
+                </button>
+                <button
+                  onClick={() => router.push('/auth/login')}
+                  className="border border-primary-600 text-primary-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-50 transition-colors"
+                >
+                  Se connecter
+                </button>
+              </>
+            )}
           </div>
         </div>
 
