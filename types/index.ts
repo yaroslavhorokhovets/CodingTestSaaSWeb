@@ -11,15 +11,9 @@ export type {
   ConsultationStatus,
   ExportFormat,
   UserRole,
+  DocumentType,
 }
 
-export enum DocumentType {
-  PRESCRIPTION = 'PRESCRIPTION',
-  LETTER = 'LETTER',
-  REPORT = 'REPORT',
-  REFERRAL = 'REFERRAL',
-  CERTIFICATE = 'CERTIFICATE',
-}
 
 export enum ConsultationStatus {
   DRAFT = 'DRAFT',
