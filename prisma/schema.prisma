@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  DOCTOR
+  ADMIN
+}
+
+enum MedicalSpecialty {
+  GENERAL_PRACTICE
+  CARDIOLOGY
+  DERMATOLOGY
+  NEUROLOGY
+  PSYCHIATRY
+  PEDIATRICS
+  GYNECOLOGY
+  ORTHOPEDICS
+  RADIOLOGY
+  ANESTHESIOLOGY
+  EMERGENCY_MEDICINE
+  INTERNAL_MEDICINE
+  SURGERY
+  ONCOLOGY
+  ENDOCRINOLOGY
+}
+
+enum ConsultationStatus {
+  RECORDING
+  TRANSCRIBING
+  PROCESSING
+  COMPLETED
+  ARCHIVED
+}
+
+enum DocumentType {
+  PRESCRIPTION
+  LETTER
+  REPORT
+  REFERRAL
+  CERTIFICATE
+}
+
+enum ExportFormat {
+  PDF
+  CSV
+  FHIR
+}
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  password          String
+  firstName         String
+  lastName          String
+  medicalSpecialty  MedicalSpecialty
+  organization      String?
+  phone             String?
+  isEmailVerified   Boolean           @default(false)
+  role              UserRole          @default(DOCTOR)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Relations
+  consultations     Consultation[]
+  documents         Document[]
+  exports           Export[]
+  auditLogs         AuditLog[]
+  
+  @@map("users")
+}
+
+model Patient {
+  id                String            @id @default(cuid())
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime?
+  gender            String?
+  phone             String?
+  email             String?
+  address           String?
+  insuranceNumber   String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Relations
+  consultations     Consultation[]
+  
+  @@map("patients")
+}
+
+model Consultation {
+  id                String              @id @default(cuid())
+  userId            String
+  patientId         String?
+  title             String
+  status            ConsultationStatus  @default(RECORDING)
+  audioFileUrl      String?
+  transcription     String?
+  soapNotes         Json?               // Structured SOAP/DAP notes
+  medicalCodes      Json?               // NGAP/CCAM/ICD-10/DSM-5 codes
+  duration          Int?                // Duration in seconds
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  completedAt       DateTime?
+  
+  // Relations
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patient           Patient?            @relation(fields: [patientId], references: [id])
+  documents         Document[]
+  
+  @@map("consultations")
+}
+
+model Document {
+  id                String              @id @default(cuid())
+  consultationId    String
+  userId            String
+  type              DocumentType
+  title             String
+  content           String
+  template          String?             // Template used for generation
+  isSigned          Boolean             @default(false)
+  signedAt          DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  consultation      Consultation        @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("documents")
+}
+
+model Export {
+  id                String              @id @default(cuid())
+  userId            String
+  format            ExportFormat
+  fileName          String
+  fileUrl           String
+  fileSize          Int
+  createdAt         DateTime            @default(now())
+  
+  // Relations
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("exports")
+}
+
+model AuditLog {
+  id                String              @id @default(cuid())
+  userId            String
+  action            String
+  resource          String
+  resourceId        String?
+  details           Json?
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime            @default(now())
+  
+  // Relations
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("audit_logs")
+}
+
+model Session {
+  id                String              @id @default(cuid())
+  userId            String
+  token             String              @unique
+  expiresAt         DateTime
+  createdAt         DateTime            @default(now())
+  
+  @@map("sessions")
+}
+
+model EncryptionKey {
+  id                String              @id @default(cuid())
+  key               String              @unique
+  isActive           Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  
+  @@map("encryption_keys")
+}
