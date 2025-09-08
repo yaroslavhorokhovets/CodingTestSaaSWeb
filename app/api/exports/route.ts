@@ -6,9 +6,6 @@ import { exportSchema } from '@/lib/validation'
 import { ExportFormat } from '@prisma/client'
 import { decrypt } from '@/lib/encryption'
 import PDFDocument from 'pdfkit'
-import { createWriteStream } from 'fs'
-import { join } from 'path'
-import { writeFileSync } from 'fs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -172,24 +169,25 @@ export async function GET(request: NextRequest) {
 }
 
 async function generatePDF(consultations: any[], options: any, user: any): Promise<Buffer> {
-  const doc = new PDFDocument()
-  const buffers: Buffer[] = []
-  
-  doc.on('data', buffers.push.bind(buffers))
-  
   return new Promise((resolve, reject) => {
+    const doc = new PDFDocument()
+    const buffers: Buffer[] = []
+
+    doc.on('data', buffers.push.bind(buffers))
     doc.on('end', () => {
       const pdfData = Buffer.concat(buffers)
       resolve(pdfData)
     })
-    
     doc.on('error', reject)
 
     // PDF Header
-    doc.fontSize(20).text('Export des Consultations', 50, 50)
-    doc.fontSize(12).text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, 50, 80)
-    doc.fontSize(12).text(`Médecin: Dr. ${user.firstName} ${user.lastName}`, 50, 100)
-    doc.fontSize(12).text(`Spécialité: ${user.medicalSpecialty}`, 50, 120)
+    doc.fontSize(20)
+    doc.text('Export des Consultations', 50, 50)
+    
+    doc.fontSize(12)
+    doc.text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, 50, 80)
+    doc.text(`Médecin: Dr. ${user.firstName} ${user.lastName}`, 50, 100)
+    doc.text(`Spécialité: ${user.medicalSpecialty}`, 50, 120)
     
     let yPosition = 150
 
@@ -199,32 +197,40 @@ async function generatePDF(consultations: any[], options: any, user: any): Promi
         yPosition = 50
       }
 
-      doc.fontSize(14).text(`${index + 1}. ${consultation.title}`, 50, yPosition)
+      doc.fontSize(14)
+      doc.text(`${index + 1}. ${consultation.title}`, 50, yPosition)
       yPosition += 25
       
-      doc.fontSize(10).text(`Date: ${new Date(consultation.createdAt).toLocaleDateString('fr-FR')}`, 50, yPosition)
-      yPosition += 15
+      doc.fontSize(10)
+      doc.text(`Date: ${new Date(consultation.createdAt).toLocaleDateString('fr-FR')}`, 50, yPosition)
+      yPosition += 20
 
       if (options.includeTranscription && consultation.transcription) {
         const transcription = decrypt(consultation.transcription)
-        doc.fontSize(10).text('Transcription:', 50, yPosition)
-        yPosition += 15
-        doc.fontSize(9).text(transcription.substring(0, 500) + '...', 50, yPosition, { width: 500 })
-        yPosition += 100
+        doc.fontSize(10)
+        doc.text('Transcription:', 50, yPosition)
+        yPosition += 20
+        doc.fontSize(9)
+        
+        // Split long text into multiple lines
+        const maxWidth = 500
+        const transcriptionText = transcription.substring(0, 500) + '...'
+        const lines = doc.splitTextToSize(transcriptionText, maxWidth)
+        doc.text(lines, 50, yPosition)
+        yPosition += lines.length * 15 + 20
       }
 
       if (options.includeNotes && consultation.soapNotes) {
         const soapNotes = JSON.parse(decrypt(consultation.soapNotes))
-        doc.fontSize(10).text('Notes SOAP:', 50, yPosition)
-        yPosition += 15
-        doc.fontSize(9).text(`S: ${soapNotes.subjective}`, 50, yPosition, { width: 500 })
-        yPosition += 50
-        doc.fontSize(9).text(`O: ${soapNotes.objective}`, 50, yPosition, { width: 500 })
-        yPosition += 50
-        doc.fontSize(9).text(`A: ${soapNotes.assessment}`, 50, yPosition, { width: 500 })
-        yPosition += 50
-        doc.fontSize(9).text(`P: ${soapNotes.plan}`, 50, yPosition, { width: 500 })
-        yPosition += 80
+        doc.fontSize(10)
+        doc.text('Notes SOAP:', 50, yPosition)
+        yPosition += 20
+        doc.fontSize(9)
+        
+        const soapText = `S: ${soapNotes.subjective} | O: ${soapNotes.objective} | A: ${soapNotes.assessment} | P: ${soapNotes.plan}`
+        const soapLines = doc.splitTextToSize(soapText, 500)
+        doc.text(soapLines, 50, yPosition)
+        yPosition += soapLines.length * 15 + 30
       }
 
       yPosition += 20

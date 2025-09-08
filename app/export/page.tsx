@@ -17,7 +17,8 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { exportSchema, ExportInput } from '@/lib/validation'
-import { ExportFormat, Consultation, Document } from '@/types'
+import { Consultation, Document } from '@/types'
+import { ExportFormat } from '@/types'
 
 const exportFormats = [
   { 
@@ -141,7 +142,7 @@ export default function ExportPage() {
     }
   }
 
-  const handleFormatChange = (format: ExportFormat) => {
+  const handleFormatChange = (format: string) => {
     setValue('format', format)
   }
 

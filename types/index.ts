@@ -7,12 +7,10 @@ export type {
   Document,
   Export,
   AuditLog,
-  MedicalSpecialty,
-  ConsultationStatus,
-  DocumentType,
-  ExportFormat,
-  UserRole,
 }
+
+// Re-export enums as values, not types
+export { MedicalSpecialty, ConsultationStatus, DocumentType, ExportFormat, UserRole }
 
 export interface AuthUser {
   id: string

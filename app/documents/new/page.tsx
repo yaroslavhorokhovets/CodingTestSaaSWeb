@@ -16,7 +16,8 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { documentSchema, DocumentInput } from '@/lib/validation'
-import { DocumentType, Consultation } from '@/types'
+import { Consultation } from '@/types'
+import { DocumentType } from '@/types'
 
 const documentTypes = [
   { value: DocumentType.PRESCRIPTION, label: 'Ordonnance', icon: '💊' },
@@ -36,7 +37,7 @@ export default function NewDocumentPage() {
   const [generatedContent, setGeneratedContent] = useState<string>('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [selectedType, setSelectedType] = useState<DocumentType>(DocumentType.PRESCRIPTION)
+  const [selectedType, setSelectedType] = useState<string>('PRESCRIPTION')
 
   const {
     register,
@@ -137,7 +138,7 @@ export default function NewDocumentPage() {
     }
   }
 
-  const handleTypeChange = (type: DocumentType) => {
+  const handleTypeChange = (type: string) => {
     setSelectedType(type)
     setValue('type', type)
   }

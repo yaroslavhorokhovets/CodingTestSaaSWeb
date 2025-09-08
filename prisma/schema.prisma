@@ -10,11 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  DOCTOR
-  ADMIN
-}
-
 enum MedicalSpecialty {
   GENERAL_PRACTICE
   CARDIOLOGY
@@ -33,10 +28,15 @@ enum MedicalSpecialty {
   ENDOCRINOLOGY
 }
 
+enum UserRole {
+  DOCTOR
+  ADMIN
+  SUPER_ADMIN
+}
+
 enum ConsultationStatus {
-  RECORDING
-  TRANSCRIBING
-  PROCESSING
+  DRAFT
+  IN_PROGRESS
   COMPLETED
   ARCHIVED
 }
@@ -64,18 +64,21 @@ model User {
   medicalSpecialty  MedicalSpecialty
   organization      String?
   phone             String?
-  isEmailVerified   Boolean           @default(false)
   role              UserRole          @default(DOCTOR)
+  emailVerified     Boolean           @default(false)
+  otpCode           String?
+  otpExpiry         DateTime?
+  resetToken        String?
+  resetTokenExpiry  DateTime?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
-  lastLoginAt       DateTime?
-  
+
   // Relations
   consultations     Consultation[]
   documents         Document[]
   exports           Export[]
   auditLogs         AuditLog[]
-  
+
   @@map("users")
 }
 
@@ -84,110 +87,101 @@ model Patient {
   firstName         String
   lastName          String
   dateOfBirth       DateTime?
-  gender            String?
-  phone             String?
   email             String?
+  phone             String?
   address           String?
-  insuranceNumber   String?
+  medicalHistory    String?
+  allergies         String?
+  medications       String?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
-  
+
   // Relations
   consultations     Consultation[]
-  
+
   @@map("patients")
 }
 
 model Consultation {
-  id                String              @id @default(cuid())
-  userId            String
-  patientId         String?
+  id                String            @id @default(cuid())
   title             String
-  status            ConsultationStatus  @default(RECORDING)
-  audioFileUrl      String?
+  status            ConsultationStatus @default(DRAFT)
   transcription     String?
-  soapNotes         Json?               // Structured SOAP/DAP notes
-  medicalCodes      Json?               // NGAP/CCAM/ICD-10/DSM-5 codes
-  duration          Int?                // Duration in seconds
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  completedAt       DateTime?
-  
+  soapNotes         Json?             // SOAP notes structure
+  dapNotes          Json?             // DAP notes structure
+  medicalCoding     Json?             // Medical coding suggestions
+  audioFileUrl      String?
+  duration          Int?              // Duration in seconds
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
   // Relations
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  patient           Patient?            @relation(fields: [patientId], references: [id])
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patientId         String?
+  patient           Patient?          @relation(fields: [patientId], references: [id], onDelete: SetNull)
   documents         Document[]
-  
+  exports           Export[]
+
   @@map("consultations")
 }
 
 model Document {
-  id                String              @id @default(cuid())
-  consultationId    String
-  userId            String
-  type              DocumentType
+  id                String            @id @default(cuid())
   title             String
   content           String
-  template          String?             // Template used for generation
-  isSigned          Boolean             @default(false)
+  type              DocumentType
+  isSigned          Boolean           @default(false)
   signedAt          DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  
+  templateUsed      String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
   // Relations
-  consultation      Consultation        @relation(fields: [consultationId], references: [id], onDelete: Cascade)
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consultationId    String?
+  consultation      Consultation?     @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+  exports           Export[]
+
   @@map("documents")
 }
 
 model Export {
-  id                String              @id @default(cuid())
-  userId            String
-  format            ExportFormat
+  id                String            @id @default(cuid())
   fileName          String
-  fileUrl           String
-  fileSize          Int
-  createdAt         DateTime            @default(now())
-  
+  format            ExportFormat
+  fileUrl           String?
+  fileSize          Int?
+  status            String            @default("PENDING") // PENDING, COMPLETED, FAILED
+  metadata          Json?             // Export metadata
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
   // Relations
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consultationId    String?
+  consultation      Consultation?     @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+  documentId        String?
+  document          Document?         @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
   @@map("exports")
 }
 
 model AuditLog {
-  id                String              @id @default(cuid())
-  userId            String
-  action            String
-  resource          String
+  id                String            @id @default(cuid())
+  action            String            // CREATE, READ, UPDATE, DELETE, EXPORT, etc.
+  resource          String            // User, Consultation, Document, etc.
   resourceId        String?
-  details           Json?
+  details           Json?             // Additional details
   ipAddress         String?
   userAgent         String?
-  createdAt         DateTime            @default(now())
-  
+  createdAt         DateTime          @default(now())
+
   // Relations
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("audit_logs")
-}
-
-model Session {
-  id                String              @id @default(cuid())
   userId            String
-  token             String              @unique
-  expiresAt         DateTime
-  createdAt         DateTime            @default(now())
-  
-  @@map("sessions")
-}
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-model EncryptionKey {
-  id                String              @id @default(cuid())
-  key               String              @unique
-  isActive           Boolean             @default(true)
-  createdAt         DateTime            @default(now())
-  
-  @@map("encryption_keys")
+  @@map("audit_logs")
 }
