@@ -24,9 +24,15 @@ export default function HomePage() {
 
   // Landing page for unauthenticated users
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-medical-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-medical-50 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse-slow"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-medical-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse-slow" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-40 left-40 w-60 h-60 bg-primary-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-bounce-slow"></div>
+      </div>
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white/80 backdrop-blur-sm shadow-sm relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
@@ -80,9 +86,9 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
+        <div className="text-center animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-slide-up">
             {locale === 'fr' ? (
               <>
                 Révolutionnez votre
@@ -95,13 +101,13 @@ export default function HomePage() {
               </>
             )}
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-slide-up" style={{animationDelay: '0.2s'}}>
             {locale === 'fr' 
               ? "Solution SaaS alimentée par l'IA pour les professionnels de santé. Transcription en temps réel, notes structurées, codage médical automatique et génération de documents sécurisés."
               : "AI-powered SaaS solution for healthcare professionals. Real-time transcription, structured notes, automatic medical coding and secure document generation."
             }
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{animationDelay: '0.4s'}}>
             {session ? (
               <>
                 <button
@@ -137,7 +143,7 @@ export default function HomePage() {
         </div>
 
         {/* Features Grid */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in" style={{animationDelay: '0.6s'}}>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <MicrophoneIcon className="h-12 w-12 text-primary-600 mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -235,7 +241,7 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-20">
+      <footer className="bg-white/80 backdrop-blur-sm border-t border-gray-200 mt-20 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-500">
             <p>&copy; 2024 Healthcare AI Assistant. {locale === 'fr' ? 'Tous droits réservés.' : 'All rights reserved.'}</p>

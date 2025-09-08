@@ -20,11 +20,11 @@ import { Consultation } from '@/types'
 import { DocumentType } from '@/types'
 
 const documentTypes = [
-  { value: DocumentType.PRESCRIPTION, label: 'Ordonnance', icon: '💊' },
-  { value: DocumentType.LETTER, label: 'Lettre', icon: '📝' },
-  { value: DocumentType.REPORT, label: 'Rapport', icon: '📋' },
-  { value: DocumentType.REFERRAL, label: 'Orientation', icon: '↗️' },
-  { value: DocumentType.CERTIFICATE, label: 'Certificat', icon: '📜' },
+  { value: 'PRESCRIPTION', label: 'Ordonnance', icon: '💊' },
+  { value: 'LETTER', label: 'Lettre', icon: '📝' },
+  { value: 'REPORT', label: 'Rapport', icon: '📋' },
+  { value: 'REFERRAL', label: 'Orientation', icon: '↗️' },
+  { value: 'CERTIFICATE', label: 'Certificat', icon: '📜' },
 ]
 
 export default function NewDocumentPage() {

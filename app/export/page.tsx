@@ -22,21 +22,21 @@ import { ExportFormat } from '@/types'
 
 const exportFormats = [
   { 
-    value: ExportFormat.PDF, 
+    value: 'PDF', 
     label: 'PDF', 
     description: 'Document portable pour impression et archivage',
     icon: DocumentTextIcon,
     color: 'text-red-600'
   },
   { 
-    value: ExportFormat.CSV, 
+    value: 'CSV', 
     label: 'CSV', 
     description: 'Fichier de données pour facturation et analyse',
     icon: TableCellsIcon,
     color: 'text-green-600'
   },
   { 
-    value: ExportFormat.FHIR, 
+    value: 'FHIR', 
     label: 'FHIR', 
     description: 'Standard d\'interopérabilité pour systèmes hospitaliers',
     icon: CloudIcon,
