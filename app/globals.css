@@ -30,7 +30,7 @@
   }
   
   .input-field {
-    @apply block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-colors duration-200 mb-4;
+    @apply block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm transition-colors duration-200;
   }
   
   .card {
@@ -145,6 +145,61 @@
   @apply bg-yellow-100 text-yellow-800;
 }
 
-.security-error {
-  @apply bg-red-100 text-red-800;
-}
+  .security-error {
+    @apply bg-red-100 text-red-800;
+  }
+
+  /* Form spacing utilities */
+  .form-group {
+    @apply mb-6;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+
+  .form-input {
+    @apply input-field;
+  }
+
+  .form-textarea {
+    @apply input-field resize-none;
+  }
+
+  .form-select {
+    @apply input-field appearance-none bg-white;
+  }
+
+  .form-checkbox {
+    @apply h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded;
+  }
+
+  .form-radio {
+    @apply h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300;
+  }
+
+  /* Button spacing utilities */
+  .btn-spacing {
+    @apply flex items-center justify-center gap-2;
+  }
+
+  .btn-icon {
+    @apply flex items-center justify-center;
+  }
+
+  /* Layout utilities */
+  .page-container {
+    @apply min-h-screen bg-gray-50;
+  }
+
+  .content-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-spacing {
+    @apply py-8;
+  }
+
+  .card-spacing {
+    @apply space-y-6;
+  }

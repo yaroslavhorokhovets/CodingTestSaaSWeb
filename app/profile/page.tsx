@@ -216,28 +216,28 @@ export default function ProfilePage() {
                   <h2 className="text-lg font-medium text-gray-900 mb-6">{t('profile.personalInfo')}</h2>
                   <form onSubmit={handleSubmitProfile(onSubmitProfile)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                      <div className="form-group">
+                        <label htmlFor="firstName" className="form-label">
                           {t('common.firstName')}
                         </label>
                         <input
                           {...registerProfile('firstName')}
                           type="text"
-                          className="input-field mt-1"
+                          className="form-input"
                         />
                         {profileErrors.firstName && (
                           <p className="mt-1 text-sm text-red-600">{profileErrors.firstName.message}</p>
                         )}
                       </div>
 
-                      <div>
-                        <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                      <div className="form-group">
+                        <label htmlFor="lastName" className="form-label">
                           {t('common.lastName')}
                         </label>
                         <input
                           {...registerProfile('lastName')}
                           type="text"
-                          className="input-field mt-1"
+                          className="form-input"
                         />
                         {profileErrors.lastName && (
                           <p className="mt-1 text-sm text-red-600">{profileErrors.lastName.message}</p>
@@ -245,13 +245,13 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <div>
-                      <label htmlFor="medicalSpecialty" className="block text-sm font-medium text-gray-700">
+                    <div className="form-group">
+                      <label htmlFor="medicalSpecialty" className="form-label">
                         {t('profile.medicalSpecialty')}
                       </label>
                       <select
                         {...registerProfile('medicalSpecialty')}
-                        className="input-field mt-1"
+                        className="form-select"
                       >
                         {medicalSpecialties.map((specialty) => (
                           <option key={specialty.value} value={specialty.value}>
@@ -264,14 +264,14 @@ export default function ProfilePage() {
                       )}
                     </div>
 
-                    <div>
-                      <label htmlFor="organization" className="block text-sm font-medium text-gray-700">
+                    <div className="form-group">
+                      <label htmlFor="organization" className="form-label">
                         {t('common.organization')}
                       </label>
                       <input
                         {...registerProfile('organization')}
                         type="text"
-                        className="input-field mt-1"
+                        className="form-input"
                         placeholder={locale === 'fr' ? 'CHU de Paris, Cabinet privé...' : 'Paris Hospital, Private practice...'}
                       />
                       {profileErrors.organization && (
@@ -279,14 +279,14 @@ export default function ProfilePage() {
                       )}
                     </div>
 
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                    <div className="form-group">
+                      <label htmlFor="phone" className="form-label">
                         {t('common.phone')}
                       </label>
                       <input
                         {...registerProfile('phone')}
                         type="tel"
-                        className="input-field mt-1"
+                        className="form-input"
                         placeholder={locale === 'fr' ? '01 23 45 67 89' : '+1 234 567 8900'}
                       />
                       {profileErrors.phone && (
@@ -298,16 +298,16 @@ export default function ProfilePage() {
                       <button
                         type="submit"
                         disabled={isSaving}
-                        className="btn-medical"
+                        className="btn-medical btn-spacing"
                       >
                         {isSaving ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                             {locale === 'fr' ? 'Sauvegarde...' : 'Saving...'}
                           </>
                         ) : (
                           <>
-                            <PencilIcon className="h-4 w-4 mr-2" />
+                            <PencilIcon className="h-4 w-4" />
                             {t('common.save')}
                           </>
                         )}
@@ -345,42 +345,42 @@ export default function ProfilePage() {
                 <div className="card">
                   <h2 className="text-lg font-medium text-gray-900 mb-6">{t('profile.changePassword')}</h2>
                   <form onSubmit={handleSubmitPassword(onSubmitPassword)} className="space-y-6">
-                    <div>
-                      <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
+                    <div className="form-group">
+                      <label htmlFor="currentPassword" className="form-label">
                         {t('profile.currentPassword')}
                       </label>
                       <input
                         {...registerPassword('currentPassword')}
                         type="password"
-                        className="input-field mt-1"
+                        className="form-input"
                       />
                       {passwordErrors.currentPassword && (
                         <p className="mt-1 text-sm text-red-600">{passwordErrors.currentPassword.message}</p>
                       )}
                     </div>
 
-                    <div>
-                      <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                    <div className="form-group">
+                      <label htmlFor="newPassword" className="form-label">
                         {t('profile.newPassword')}
                       </label>
                       <input
                         {...registerPassword('newPassword')}
                         type="password"
-                        className="input-field mt-1"
+                        className="form-input"
                       />
                       {passwordErrors.newPassword && (
                         <p className="mt-1 text-sm text-red-600">{passwordErrors.newPassword.message}</p>
                       )}
                     </div>
 
-                    <div>
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                    <div className="form-group">
+                      <label htmlFor="confirmPassword" className="form-label">
                         {t('profile.confirmPassword')}
                       </label>
                       <input
                         {...registerPassword('confirmPassword')}
                         type="password"
-                        className="input-field mt-1"
+                        className="form-input"
                       />
                       {passwordErrors.confirmPassword && (
                         <p className="mt-1 text-sm text-red-600">{passwordErrors.confirmPassword.message}</p>
@@ -391,16 +391,16 @@ export default function ProfilePage() {
                       <button
                         type="submit"
                         disabled={isSaving}
-                        className="btn-medical"
+                        className="btn-medical btn-spacing"
                       >
                         {isSaving ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                             {locale === 'fr' ? 'Mise à jour...' : 'Updating...'}
                           </>
                         ) : (
                           <>
-                            <LockClosedIcon className="h-4 w-4 mr-2" />
+                            <LockClosedIcon className="h-4 w-4" />
                             {t('profile.changePassword')}
                           </>
                         )}
@@ -452,7 +452,7 @@ export default function ProfilePage() {
                       <input
                         type="checkbox"
                         defaultChecked
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        className="form-checkbox"
                       />
                     </div>
                     <div className="flex items-center justify-between">
@@ -465,7 +465,7 @@ export default function ProfilePage() {
                       <input
                         type="checkbox"
                         defaultChecked
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        className="form-checkbox"
                       />
                     </div>
                     <div className="flex items-center justify-between">
@@ -477,7 +477,7 @@ export default function ProfilePage() {
                       </div>
                       <input
                         type="checkbox"
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                        className="form-checkbox"
                       />
                     </div>
                   </div>
@@ -524,10 +524,10 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="mt-6 flex space-x-4">
-                    <button className="btn-secondary">
+                    <button className="btn-secondary btn-spacing">
                       {t('profile.modifySubscription')}
                     </button>
-                    <button className="btn-secondary">
+                    <button className="btn-secondary btn-spacing">
                       {t('profile.billingHistory')}
                     </button>
                   </div>

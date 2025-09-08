@@ -2,19 +2,18 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import { toast } from 'react-hot-toast'
-import { useLanguage } from '@/lib/language-context'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
-import { 
-  ArrowLeftIcon,
-  ShieldCheckIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon
-} from '@heroicons/react/24/outline'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { 
+  ArrowLeftIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon
+} from '@heroicons/react/24/outline'
+import { useLanguage } from '@/lib/language-context'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 const otpSchema = z.object({
   otp: z.string().length(6, 'OTP must be 6 digits'),
@@ -30,9 +29,8 @@ export default function VerifyOtpPage() {
   const [isVerified, setIsVerified] = useState(false)
   const [timeLeft, setTimeLeft] = useState(300) // 5 minutes
   const [canResend, setCanResend] = useState(false)
-  
-  const email = searchParams.get('email')
-  const purpose = searchParams.get('purpose') || 'verification'
+  const [email, setEmail] = useState<string | null>(null)
+  const otpInputRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
@@ -44,9 +42,22 @@ export default function VerifyOtpPage() {
     resolver: zodResolver(otpSchema),
   })
 
-  const otpValue = watch('otp')
+  const otp = watch('otp')
 
-  // Timer for resend functionality
+  useEffect(() => {
+    const emailParam = searchParams.get('email')
+    if (!emailParam) {
+      toast.error(
+        locale === 'fr' 
+          ? 'Email manquant'
+          : 'Missing email'
+      )
+      router.push('/auth/login')
+      return
+    }
+    setEmail(emailParam)
+  }, [searchParams, router, locale])
+
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
@@ -56,7 +67,15 @@ export default function VerifyOtpPage() {
     }
   }, [timeLeft])
 
+  useEffect(() => {
+    if (otp && otp.length === 6) {
+      handleSubmit(onSubmit)()
+    }
+  }, [otp])
+
   const onSubmit = async (data: OtpInput) => {
+    if (!email) return
+    
     setIsLoading(true)
     
     try {
@@ -68,7 +87,6 @@ export default function VerifyOtpPage() {
         body: JSON.stringify({
           email,
           otp: data.otp,
-          purpose,
         }),
       })
 
@@ -80,28 +98,21 @@ export default function VerifyOtpPage() {
       setIsVerified(true)
       toast.success(
         locale === 'fr' 
-          ? 'Code vérifié avec succès'
-          : 'Code verified successfully'
+          ? 'Email vérifié avec succès'
+          : 'Email verified successfully'
       )
-      
-      // Redirect based on purpose
-      setTimeout(() => {
-        if (purpose === 'registration') {
-          router.push('/auth/login')
-        } else if (purpose === 'password-reset') {
-          router.push(`/auth/reset-password?token=${searchParams.get('token')}`)
-        } else {
-          router.push('/dashboard')
-        }
-      }, 2000)
       
     } catch (error) {
       console.error('Error verifying OTP:', error)
       toast.error(
         error instanceof Error 
           ? error.message 
-          : (locale === 'fr' ? 'Code invalide' : 'Invalid code')
+          : (locale === 'fr' ? 'Code OTP invalide' : 'Invalid OTP')
       )
+      setValue('otp', '')
+      if (otpInputRef.current) {
+        otpInputRef.current.focus()
+      }
     } finally {
       setIsLoading(false)
     }
@@ -118,10 +129,7 @@ export default function VerifyOtpPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email,
-          purpose,
-        }),
+        body: JSON.stringify({ email }),
       })
 
       if (!response.ok) {
@@ -162,24 +170,37 @@ export default function VerifyOtpPage() {
           <div className="text-center">
             <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900">
-              {locale === 'fr' ? 'Vérifié avec succès' : 'Successfully verified'}
+              {locale === 'fr' ? 'Email vérifié' : 'Email verified'}
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="text-gray-600 mt-2">
               {locale === 'fr' 
-                ? 'Votre code a été vérifié avec succès'
-                : 'Your code has been verified successfully'
+                ? 'Votre email a été vérifié avec succès.'
+                : 'Your email has been verified successfully.'
               }
             </p>
           </div>
           
-          <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
-              <p className="text-sm text-gray-600">
-                {locale === 'fr' ? 'Redirection...' : 'Redirecting...'}
-              </p>
-            </div>
+          <div className="mt-8 text-center">
+            <Link 
+              href="/auth/login" 
+              className="btn-primary"
+            >
+              {locale === 'fr' ? 'Se connecter' : 'Sign in'}
+            </Link>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!email) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="text-gray-600 mt-4">
+            {locale === 'fr' ? 'Chargement...' : 'Loading...'}
+          </p>
         </div>
       </div>
     )
@@ -187,32 +208,36 @@ export default function VerifyOtpPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-between items-center mb-6">
-          <Link href="/auth/login" className="flex items-center text-gray-600 hover:text-gray-900">
-            <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            {locale === 'fr' ? 'Retour' : 'Back'}
-          </Link>
-          <LanguageSwitcher />
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <Link href="/auth/login" className="flex items-center">
+              <ArrowLeftIcon className="h-5 w-5 text-gray-600 mr-2" />
+              <span className="text-gray-600">
+                {locale === 'fr' ? 'Retour' : 'Back'}
+              </span>
+            </Link>
+            <LanguageSwitcher />
+          </div>
         </div>
-        
+      </div>
+
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <ShieldCheckIcon className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900">
-            {locale === 'fr' ? 'Vérification du code' : 'Code verification'}
+          <h2 className="text-3xl font-bold text-gray-900">
+            {locale === 'fr' ? 'Vérification email' : 'Email verification'}
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="text-gray-600 mt-2">
             {locale === 'fr' 
               ? `Entrez le code à 6 chiffres envoyé à ${email}`
               : `Enter the 6-digit code sent to ${email}`
             }
           </p>
         </div>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        
+        <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
                 {locale === 'fr' ? 'Code de vérification' : 'Verification code'}
@@ -220,25 +245,29 @@ export default function VerifyOtpPage() {
               <div className="mt-1">
                 <input
                   {...register('otp')}
+                  ref={otpInputRef}
                   type="text"
                   maxLength={6}
-                  className="input-field text-center text-2xl tracking-widest"
+                  className="input-field text-center text-2xl font-mono tracking-widest"
                   placeholder="000000"
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '')
-                    setValue('otp', value)
-                  }}
+                  autoComplete="one-time-code"
                 />
-                {errors.otp && (
-                  <p className="mt-1 text-sm text-red-600">{errors.otp.message}</p>
-                )}
               </div>
+              {errors.otp && (
+                <p className="mt-1 text-sm text-red-600">{errors.otp.message}</p>
+              )}
+            </div>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                {locale === 'fr' ? 'Code valide pendant' : 'Code valid for'} {formatTime(timeLeft)}
+              </p>
             </div>
 
             <div>
               <button
                 type="submit"
-                disabled={isLoading || !otpValue || otpValue.length !== 6}
+                disabled={isLoading || !otp || otp.length !== 6}
                 className="btn-primary w-full"
               >
                 {isLoading ? (
@@ -248,44 +277,41 @@ export default function VerifyOtpPage() {
                   </>
                 ) : (
                   <>
-                    <ShieldCheckIcon className="h-4 w-4 mr-2" />
-                    {locale === 'fr' ? 'Vérifier le code' : 'Verify code'}
+                    <CheckCircleIcon className="h-4 w-4 mr-2" />
+                    {locale === 'fr' ? 'Vérifier' : 'Verify'}
                   </>
                 )}
               </button>
             </div>
-
-            <div className="text-center">
-              {canResend ? (
-                <button
-                  type="button"
-                  onClick={resendOtp}
-                  disabled={isLoading}
-                  className="text-primary-600 hover:text-primary-500 text-sm"
-                >
-                  {locale === 'fr' ? 'Renvoyer le code' : 'Resend code'}
-                </button>
-              ) : (
-                <p className="text-sm text-gray-600">
-                  {locale === 'fr' ? 'Renvoyer dans' : 'Resend in'} {formatTime(timeLeft)}
-                </p>
-              )}
-            </div>
-
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                {locale === 'fr' ? 'Vous n\'avez pas reçu le code ?' : 'Didn\'t receive the code?'}{' '}
-                <button
-                  type="button"
-                  onClick={resendOtp}
-                  disabled={!canResend || isLoading}
-                  className="text-primary-600 hover:text-primary-500"
-                >
-                  {locale === 'fr' ? 'Vérifiez votre email' : 'Check your email'}
-                </button>
-              </p>
-            </div>
           </form>
+          
+          <div className="mt-6 text-center">
+            {canResend ? (
+              <button
+                onClick={resendOtp}
+                disabled={isLoading}
+                className="text-primary-600 hover:text-primary-500 font-medium"
+              >
+                {locale === 'fr' ? 'Renvoyer le code' : 'Resend code'}
+              </button>
+            ) : (
+              <p className="text-sm text-gray-500">
+                {locale === 'fr' 
+                  ? 'Vous pourrez renvoyer le code dans'
+                  : 'You can resend the code in'
+                } {formatTime(timeLeft)}
+              </p>
+            )}
+          </div>
+          
+          <div className="mt-4 text-center">
+            <Link 
+              href="/auth/login" 
+              className="text-gray-600 hover:text-gray-500 font-medium"
+            >
+              {locale === 'fr' ? 'Retour à la connexion' : 'Back to login'}
+            </Link>
+          </div>
         </div>
       </div>
     </div>

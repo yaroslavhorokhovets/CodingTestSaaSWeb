@@ -19,12 +19,7 @@ export default function HomePage() {
   const router = useRouter()
   const { t, locale } = useLanguage()
 
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    if (session?.user) {
-      router.push('/dashboard')
-    }
-  }, [session, router])
+  // Don't automatically redirect - let users choose
 
   // Landing page for unauthenticated users
   return (

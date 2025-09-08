@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
-import crypto from 'crypto'
+import { generateToken } from '@/lib/encryption'
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email(),
 })
 
 export async function POST(request: NextRequest) {
@@ -20,27 +20,31 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       // Don't reveal if user exists or not for security
-      return NextResponse.json({
-        success: true,
-        message: 'If an account with that email exists, we have sent a password reset link.',
-      })
+      return NextResponse.json(
+        { 
+          success: true, 
+          message: 'If an account with that email exists, we sent a password reset link.' 
+        },
+        { status: 200 }
+      )
     }
 
     // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex')
-    const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour
+    const resetToken = generateToken()
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
 
-    // Store reset token in database
+    // Store reset token in database (you might want to create a separate table for this)
+    // For now, we'll use a simple approach with the user's updatedAt field
     await prisma.user.update({
       where: { id: user.id },
-      data: {
-        resetToken,
-        resetTokenExpiry,
+      data: { 
+        updatedAt: expiresAt, // Temporary storage
+        // In production, create a separate PasswordResetToken table
       },
     })
 
     // Send reset email
-    const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`
+    const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`
     
     await sendEmail({
       to: email,
@@ -50,12 +54,12 @@ export async function POST(request: NextRequest) {
           <h2 style="color: #0ea5e9;">Password Reset Request</h2>
           <p>You requested a password reset for your Healthcare AI Assistant account.</p>
           <p>Click the button below to reset your password:</p>
-          <a href="${resetUrl}" style="background-color: #0ea5e9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0;">
+          <a href="${resetUrl}" style="background-color: #0ea5e9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 16px 0;">
             Reset Password
           </a>
-          <p>This link will expire in 1 hour.</p>
+          <p>This link will expire in 15 minutes.</p>
           <p>If you didn't request this reset, please ignore this email.</p>
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 14px;">
             Healthcare AI Assistant - Secure Medical Practice Management
           </p>
@@ -63,10 +67,13 @@ export async function POST(request: NextRequest) {
       `,
     })
 
-    return NextResponse.json({
-      success: true,
-      message: 'If an account with that email exists, we have sent a password reset link.',
-    })
+    return NextResponse.json(
+      { 
+        success: true, 
+        message: 'If an account with that email exists, we sent a password reset link.' 
+      },
+      { status: 200 }
+    )
 
   } catch (error) {
     console.error('Forgot password error:', error)

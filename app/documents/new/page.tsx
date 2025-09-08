@@ -19,11 +19,11 @@ import { documentSchema, DocumentInput } from '@/lib/validation'
 import { DocumentType, Consultation } from '@/types'
 
 const documentTypes = [
-  { value: DocumentType.PRESCRIPTION, label: 'Ordonnance', icon: '💊' },
-  { value: DocumentType.LETTER, label: 'Lettre', icon: '📝' },
-  { value: DocumentType.REPORT, label: 'Rapport', icon: '📋' },
-  { value: DocumentType.REFERRAL, label: 'Orientation', icon: '↗️' },
-  { value: DocumentType.CERTIFICATE, label: 'Certificat', icon: '📜' },
+  { value: 'PRESCRIPTION', label: 'Ordonnance', icon: '💊' },
+  { value: 'LETTER', label: 'Lettre', icon: '📝' },
+  { value: 'REPORT', label: 'Rapport', icon: '📋' },
+  { value: 'REFERRAL', label: 'Orientation', icon: '↗️' },
+  { value: 'CERTIFICATE', label: 'Certificat', icon: '📜' },
 ]
 
 export default function NewDocumentPage() {
@@ -36,7 +36,7 @@ export default function NewDocumentPage() {
   const [generatedContent, setGeneratedContent] = useState<string>('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [selectedType, setSelectedType] = useState<DocumentType>(DocumentType.PRESCRIPTION)
+  const [selectedType, setSelectedType] = useState<string>('PRESCRIPTION')
 
   const {
     register,
@@ -137,7 +137,7 @@ export default function NewDocumentPage() {
     }
   }
 
-  const handleTypeChange = (type: DocumentType) => {
+  const handleTypeChange = (type: string) => {
     setSelectedType(type)
     setValue('type', type)
   }
