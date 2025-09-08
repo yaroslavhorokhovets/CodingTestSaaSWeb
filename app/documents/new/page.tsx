@@ -16,7 +16,8 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { documentSchema, DocumentInput } from '@/lib/validation'
-import { DocumentType, Consultation } from '@/types'
+import { Consultation } from '@/types'
+import { DocumentType } from '@prisma/client'
 
 const documentTypes = [
   { value: 'PRESCRIPTION', label: 'Ordonnance', icon: '💊' },
