@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { AIService } from '@/lib/ai'
 import { encrypt } from '@/lib/encryption'
-import { ConsultationStatus } from '@prisma/client'
+import { ConsultationStatus } from '@/types'
 
 export async function POST(
   request: NextRequest,

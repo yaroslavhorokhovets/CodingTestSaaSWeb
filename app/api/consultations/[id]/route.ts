@@ -38,9 +38,9 @@ export async function GET(
     // Decrypt sensitive data
     const decryptedConsultation = {
       ...consultation,
-      transcription: consultation.transcription ? decrypt(consultation.transcription as string) : null,
-      soapNotes: consultation.soapNotes ? decrypt(consultation.soapNotes as string) : null,
-      medicalCoding: consultation.medicalCoding ? decrypt(consultation.medicalCoding as string) : null,
+      transcription: consultation.transcription ? decrypt(consultation.transcription) : null,
+      soapNotes: consultation.soapNotes ? decrypt(consultation.soapNotes) : null,
+      medicalCoding: consultation.medicalCoding ? decrypt(consultation.medicalCoding) : null,
     }
 
     return NextResponse.json({

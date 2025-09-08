@@ -53,7 +53,9 @@ export default function ReviewConsultationPage({ params }: { params: { id: strin
         if (data.data.soapNotes) {
           const notes = JSON.parse(data.data.soapNotes)
           setSoapNotes(notes)
-          reset(notes)
+          if (notes) {
+            reset(notes)
+          }
         }
         
         if (data.data.medicalCoding) {

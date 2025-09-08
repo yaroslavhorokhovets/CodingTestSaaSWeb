@@ -83,8 +83,8 @@ export const authOptions: NextAuthOptions = {
           lastName: (user as any).lastName || '',
           medicalSpecialty: (user as any).medicalSpecialty || 'GENERAL_PRACTICE',
           organization: (user as any).organization,
-          role: (user as any).role || 'PRACTITIONER'
-        }
+          role: (user as any).role || 'DOCTOR'
+        } as AuthUser
       }
       return token
     },

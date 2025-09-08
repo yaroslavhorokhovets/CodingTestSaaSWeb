@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-hot-toast'
-import { DocumentType } from '@prisma/client'
 import { 
   DocumentTextIcon, 
   PrinterIcon,
@@ -17,7 +16,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { documentSchema, DocumentInput } from '@/lib/validation'
-import { Consultation } from '@/types'
+import { Consultation, DocumentType } from '@/types'
 
 const documentTypes = [
   { value: DocumentType.PRESCRIPTION, label: 'Ordonnance', icon: '💊' },

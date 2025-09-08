@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Decrypt consultation data
-    const transcription = consultation.transcription ? decrypt(consultation.transcription as string) : ''
-    const soapNotes = consultation.soapNotes ? JSON.parse(decrypt(consultation.soapNotes as string)) : null
+    const transcription = consultation.transcription ? decrypt(consultation.transcription) : ''
+    const soapNotes = consultation.soapNotes ? JSON.parse(decrypt(consultation.soapNotes)) : null
 
     // Get patient information if available
     const patient = consultation.patientId ? await prisma.patient.findUnique({
