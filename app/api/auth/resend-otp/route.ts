@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
-import { generateToken } from '@/lib/encryption'
+import { prisma } from '@/lib/prisma'
+import crypto from 'crypto'
 
 const resendOtpSchema = z.object({
   email: z.string().email(),
@@ -20,22 +20,23 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { success: false, message: 'User not found' },
+        { message: 'User not found' },
         { status: 404 }
       )
     }
 
     // Generate new OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString()
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+    const otpExpiry = new Date(Date.now() + 300000) // 5 minutes
 
-    // In a real implementation, you would:
-    // 1. Create a separate OtpToken table
-    // 2. Store OTPs with expiration times
-    // 3. Check rate limiting to prevent spam
-    
-    // For this demo, we'll use a simplified approach
-    // In production, implement proper OTP storage and validation
+    // Update user with new OTP
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otpCode,
+        otpExpiry,
+      },
+    })
 
     // Send OTP email
     await sendEmail({
@@ -43,41 +44,33 @@ export async function POST(request: NextRequest) {
       subject: 'Email Verification Code',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0ea5e9;">Email Verification</h2>
+          <h2>Email Verification</h2>
           <p>Your verification code is:</p>
-          <div style="background-color: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
-            <span style="font-size: 32px; font-weight: bold; color: #0ea5e9; letter-spacing: 8px;">${otp}</span>
+          <div style="background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 4px; margin: 20px 0;">
+            ${otpCode}
           </div>
           <p>This code will expire in 5 minutes.</p>
           <p>If you didn't request this verification, please ignore this email.</p>
-          <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
-          <p style="color: #6b7280; font-size: 14px;">
-            Healthcare AI Assistant - Secure Medical Practice Management
-          </p>
         </div>
       `,
     })
 
-    return NextResponse.json(
-      { 
-        success: true, 
-        message: 'New verification code sent' 
-      },
-      { status: 200 }
-    )
+    return NextResponse.json({
+      message: 'OTP resent successfully',
+    })
 
   } catch (error) {
     console.error('Resend OTP error:', error)
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, message: 'Invalid email address' },
+        { message: 'Invalid email address' },
         { status: 400 }
       )
     }
 
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { message: 'Internal server error' },
       { status: 500 }
     )
   }

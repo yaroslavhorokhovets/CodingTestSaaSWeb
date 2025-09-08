@@ -20,6 +20,7 @@ export default function HomePage() {
   const { t, locale } = useLanguage()
 
   // Don't automatically redirect - let users choose
+  // Removed automatic redirect to dashboard
 
   // Landing page for unauthenticated users
   return (

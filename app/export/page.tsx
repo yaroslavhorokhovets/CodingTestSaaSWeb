@@ -18,25 +18,25 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { exportSchema, ExportInput } from '@/lib/validation'
 import { Consultation, Document } from '@/types'
-import { ExportFormat } from '@prisma/client'
+import { ExportFormat } from '@/types'
 
 const exportFormats = [
   { 
-    value: 'PDF', 
+    value: ExportFormat.PDF, 
     label: 'PDF', 
     description: 'Document portable pour impression et archivage',
     icon: DocumentTextIcon,
     color: 'text-red-600'
   },
   { 
-    value: 'CSV', 
+    value: ExportFormat.CSV, 
     label: 'CSV', 
     description: 'Fichier de données pour facturation et analyse',
     icon: TableCellsIcon,
     color: 'text-green-600'
   },
   { 
-    value: 'FHIR', 
+    value: ExportFormat.FHIR, 
     label: 'FHIR', 
     description: 'Standard d\'interopérabilité pour systèmes hospitaliers',
     icon: CloudIcon,

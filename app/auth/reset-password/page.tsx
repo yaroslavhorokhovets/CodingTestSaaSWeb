@@ -3,19 +3,18 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-hot-toast'
-import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { useLanguage } from '@/lib/language-context'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { 
   ArrowLeftIcon,
   LockClosedIcon,
   CheckCircleIcon,
-  EyeIcon,
-  EyeSlashIcon
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline'
-import { useLanguage } from '@/lib/language-context'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
 const resetPasswordSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
@@ -33,9 +32,8 @@ export default function ResetPasswordPage() {
   const { t, locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [token, setToken] = useState<string | null>(null)
+  const [isValidToken, setIsValidToken] = useState<boolean | null>(null)
 
   const {
     register,
@@ -47,17 +45,28 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     const tokenParam = searchParams.get('token')
-    if (!tokenParam) {
-      toast.error(
-        locale === 'fr' 
-          ? 'Token de réinitialisation manquant'
-          : 'Missing reset token'
-      )
-      router.push('/auth/forgot-password')
-      return
+    if (tokenParam) {
+      setToken(tokenParam)
+      // Validate token
+      validateToken(tokenParam)
+    } else {
+      setIsValidToken(false)
     }
-    setToken(tokenParam)
-  }, [searchParams, router, locale])
+  }, [searchParams])
+
+  const validateToken = async (token: string) => {
+    try {
+      const response = await fetch(`/api/auth/validate-reset-token?token=${token}`)
+      if (response.ok) {
+        setIsValidToken(true)
+      } else {
+        setIsValidToken(false)
+      }
+    } catch (error) {
+      console.error('Error validating token:', error)
+      setIsValidToken(false)
+    }
+  }
 
   const onSubmit = async (data: ResetPasswordInput) => {
     if (!token) return
@@ -84,7 +93,7 @@ export default function ResetPasswordPage() {
       setIsSuccess(true)
       toast.success(
         locale === 'fr' 
-          ? 'Mot de passe réinitialisé avec succès'
+          ? 'Mot de passe réinitialisé avec succès' 
           : 'Password reset successfully'
       )
       
@@ -100,16 +109,60 @@ export default function ResetPasswordPage() {
     }
   }
 
+  if (isValidToken === null) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+
+  if (!isValidToken) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="text-center">
+            <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-500" />
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">
+              {locale === 'fr' ? 'Lien invalide' : 'Invalid Link'}
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              {locale === 'fr' 
+                ? 'Ce lien de réinitialisation est invalide ou a expiré.'
+                : 'This reset link is invalid or has expired.'
+              }
+            </p>
+          </div>
+          
+          <div className="mt-8 space-y-4">
+            <Link
+              href="/auth/forgot-password"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              {locale === 'fr' ? 'Demander un nouveau lien' : 'Request new link'}
+            </Link>
+            <Link
+              href="/auth/login"
+              className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              {locale === 'fr' ? 'Retour à la connexion' : 'Back to login'}
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="text-center">
-            <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900">
-              {locale === 'fr' ? 'Mot de passe réinitialisé' : 'Password reset'}
+            <CheckCircleIcon className="mx-auto h-12 w-12 text-green-500" />
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">
+              {locale === 'fr' ? 'Succès' : 'Success'}
             </h2>
-            <p className="text-gray-600 mt-2">
+            <p className="mt-2 text-sm text-gray-600">
               {locale === 'fr' 
                 ? 'Votre mot de passe a été réinitialisé avec succès.'
                 : 'Your password has been reset successfully.'
@@ -117,10 +170,10 @@ export default function ResetPasswordPage() {
             </p>
           </div>
           
-          <div className="mt-8 text-center">
-            <Link 
-              href="/auth/login" 
-              className="btn-primary"
+          <div className="mt-8">
+            <Link
+              href="/auth/login"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               {locale === 'fr' ? 'Se connecter' : 'Sign in'}
             </Link>
@@ -130,116 +183,78 @@ export default function ResetPasswordPage() {
     )
   }
 
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">
-            {locale === 'fr' ? 'Vérification du token...' : 'Verifying token...'}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/auth/login" className="flex items-center">
-              <ArrowLeftIcon className="h-5 w-5 text-gray-600 mr-2" />
-              <span className="text-gray-600">
-                {locale === 'fr' ? 'Retour' : 'Back'}
-              </span>
-            </Link>
-            <LanguageSwitcher />
-          </div>
-        </div>
-      </div>
-
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-between items-center mb-6">
+          <Link
+            href="/auth/login"
+            className="flex items-center text-sm text-gray-600 hover:text-gray-900"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-1" />
+            {locale === 'fr' ? 'Retour' : 'Back'}
+          </Link>
+          <LanguageSwitcher />
+        </div>
+
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">
-            {locale === 'fr' ? 'Nouveau mot de passe' : 'New password'}
+          <LockClosedIcon className="mx-auto h-12 w-12 text-primary-600" />
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+            {locale === 'fr' ? 'Nouveau mot de passe' : 'New Password'}
           </h2>
-          <p className="text-gray-600 mt-2">
+          <p className="mt-2 text-sm text-gray-600">
             {locale === 'fr' 
-              ? 'Entrez votre nouveau mot de passe'
-              : 'Enter your new password'
+              ? 'Entrez votre nouveau mot de passe.'
+              : 'Enter your new password.'
             }
           </p>
         </div>
-        
-        <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                {locale === 'fr' ? 'Nouveau mot de passe' : 'New password'}
+                {locale === 'fr' ? 'Nouveau mot de passe' : 'New Password'}
               </label>
-              <div className="mt-1 relative">
+              <div className="mt-1">
                 <input
                   {...register('password')}
-                  type={showPassword ? 'text' : 'password'}
+                  type="password"
                   autoComplete="new-password"
-                  className="input-field pl-10 pr-10"
-                  placeholder={locale === 'fr' ? 'Mot de passe' : 'Password'}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  placeholder={locale === 'fr' ? 'Minimum 8 caractères' : 'Minimum 8 characters'}
                 />
-                <LockClosedIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                )}
               </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-              )}
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                {locale === 'fr' ? 'Confirmer le mot de passe' : 'Confirm password'}
+                {locale === 'fr' ? 'Confirmer le mot de passe' : 'Confirm Password'}
               </label>
-              <div className="mt-1 relative">
+              <div className="mt-1">
                 <input
                   {...register('confirmPassword')}
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type="password"
                   autoComplete="new-password"
-                  className="input-field pl-10 pr-10"
-                  placeholder={locale === 'fr' ? 'Confirmer le mot de passe' : 'Confirm password'}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                  placeholder={locale === 'fr' ? 'Répétez le mot de passe' : 'Repeat password'}
                 />
-                <LockClosedIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                >
-                  {showConfirmPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+                )}
               </div>
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
-              )}
             </div>
 
             <div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="btn-primary w-full"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -249,21 +264,12 @@ export default function ResetPasswordPage() {
                 ) : (
                   <>
                     <LockClosedIcon className="h-4 w-4 mr-2" />
-                    {locale === 'fr' ? 'Réinitialiser le mot de passe' : 'Reset password'}
+                    {locale === 'fr' ? 'Réinitialiser' : 'Reset Password'}
                   </>
                 )}
               </button>
             </div>
           </form>
-          
-          <div className="mt-6 text-center">
-            <Link 
-              href="/auth/login" 
-              className="text-primary-600 hover:text-primary-500 font-medium"
-            >
-              {locale === 'fr' ? 'Retour à la connexion' : 'Back to login'}
-            </Link>
-          </div>
         </div>
       </div>
     </div>

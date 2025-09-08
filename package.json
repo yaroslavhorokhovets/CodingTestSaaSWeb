@@ -57,7 +57,9 @@
     "react-syntax-highlighter": "^15.5.0",
     "@types/react-syntax-highlighter": "^15.5.11",
     "pdfkit": "^0.14.0",
-    "@types/pdfkit": "^0.12.12"
+    "@types/pdfkit": "^0.12.12",
+    "nodemailer": "^6.9.7",
+    "@types/nodemailer": "^6.4.14"
   },
   "devDependencies": {
     "eslint": "^8.56.0",

@@ -1,7 +1,7 @@
 'use client'
 
 import { useLanguage } from '@/lib/language-context'
-import { GlobeAltIcon } from '@heroicons/react/24/outline'
+import { LanguageIcon } from '@heroicons/react/24/outline'
 
 export default function LanguageSwitcher() {
   const { locale, setLocale } = useLanguage()
@@ -13,11 +13,11 @@ export default function LanguageSwitcher() {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-      title={`Switch to ${locale === 'en' ? 'French' : 'English'}`}
+      className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+      title={locale === 'en' ? 'Switch to French' : 'Passer en anglais'}
     >
-      <GlobeAltIcon className="h-4 w-4" />
-      <span className="uppercase font-semibold">{locale}</span>
+      <LanguageIcon className="h-4 w-4" />
+      <span>{locale === 'en' ? 'FR' : 'EN'}</span>
     </button>
   )
 }

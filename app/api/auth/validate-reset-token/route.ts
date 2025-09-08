@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 
     if (!token) {
       return NextResponse.json(
-        { success: false, message: 'Token is required' },
+        { message: 'Token is required' },
         { status: 400 }
       )
     }
@@ -18,27 +18,27 @@ export async function GET(request: NextRequest) {
       where: {
         resetToken: token,
         resetTokenExpiry: {
-          gt: new Date(), // Token not expired
+          gt: new Date(),
         },
       },
     })
 
     if (!user) {
       return NextResponse.json(
-        { success: false, message: 'Invalid or expired token' },
+        { message: 'Invalid or expired token' },
         { status: 400 }
       )
     }
 
     return NextResponse.json({
-      success: true,
       message: 'Token is valid',
+      email: user.email,
     })
 
   } catch (error) {
     console.error('Validate reset token error:', error)
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { message: 'Internal server error' },
       { status: 500 }
     )
   }
