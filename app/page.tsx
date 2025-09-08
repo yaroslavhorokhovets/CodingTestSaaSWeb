@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useLanguage } from '@/lib/language-context'
@@ -17,6 +18,13 @@ export default function HomePage() {
   const { data: session } = useSession()
   const router = useRouter()
   const { t, locale } = useLanguage()
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (session?.user) {
+      router.push('/dashboard')
+    }
+  }, [session, router])
 
   // Landing page for unauthenticated users
   return (

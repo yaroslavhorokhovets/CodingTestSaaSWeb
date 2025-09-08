@@ -14,6 +14,9 @@ export type {
   DocumentType,
 }
 
+// Re-export enums as values, not types
+export { MedicalSpecialty, ConsultationStatus, DocumentType, ExportFormat, UserRole }
+
 
 export enum ConsultationStatus {
   DRAFT = 'DRAFT',
