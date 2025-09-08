@@ -19,7 +19,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { exportSchema, ExportInput } from '@/lib/validation'
 import { Consultation, Document } from '@/types'
-import { ExportFormat } from '@prisma/client'
 
 const exportFormats = [
   { 

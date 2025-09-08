@@ -60,7 +60,7 @@ export default function DashboardPage() {
     return null
   }
 
-  const user = session.user
+  const user = session.user as any
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -70,10 +70,10 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Bonjour, Dr. {user.firstName} {user.lastName}
+                Bonjour, Dr. {user?.firstName || 'Utilisateur'} {user?.lastName || ''}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                {user.medicalSpecialty} • {user.organization || 'Cabinet privé'}
+                {user?.medicalSpecialty || 'Médecine générale'} • {user?.organization || 'Cabinet privé'}
               </p>
             </div>
             <div className="flex items-center space-x-4">

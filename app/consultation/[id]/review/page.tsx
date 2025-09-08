@@ -104,7 +104,12 @@ export default function ReviewConsultationPage({ params }: { params: { id: strin
   const handleCancel = () => {
     setIsEditing(false)
     if (soapNotes) {
-      reset(soapNotes)
+      reset({
+        subjective: soapNotes.subjective,
+        objective: soapNotes.objective,
+        assessment: soapNotes.assessment,
+        plan: soapNotes.plan
+      })
     }
   }
 

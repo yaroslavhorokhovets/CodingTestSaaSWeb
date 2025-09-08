@@ -69,11 +69,12 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (session?.user) {
+      const user = session.user as any
       resetProfile({
-        firstName: session.user.firstName,
-        lastName: session.user.lastName,
-        medicalSpecialty: session.user.medicalSpecialty,
-        organization: session.user.organization || '',
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        medicalSpecialty: user.medicalSpecialty || 'GENERAL_PRACTICE',
+        organization: user.organization || '',
         phone: ''
       })
     }

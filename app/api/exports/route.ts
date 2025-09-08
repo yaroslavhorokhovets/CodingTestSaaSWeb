@@ -243,7 +243,9 @@ async function generatePDF(consultations: any[], options: any, user: any): Promi
         const maxWidth = 500
         const transcriptionText = transcription.substring(0, 500) + '...'
         const lines = wrapText(transcriptionText, maxWidth)
-        doc.text(lines, 50, yPosition)
+        lines.forEach((line, index) => {
+          doc.text(line, 50, yPosition + (index * 15))
+        })
         yPosition += lines.length * 15 + 20
       }
 
@@ -256,7 +258,9 @@ async function generatePDF(consultations: any[], options: any, user: any): Promi
         
         const soapText = `S: ${soapNotes.subjective} | O: ${soapNotes.objective} | A: ${soapNotes.assessment} | P: ${soapNotes.plan}`
         const soapLines = wrapText(soapText, 500)
-        doc.text(soapLines, 50, yPosition)
+        soapLines.forEach((line, index) => {
+          doc.text(line, 50, yPosition + (index * 15))
+        })
         yPosition += soapLines.length * 15 + 30
       }
 
@@ -338,7 +342,7 @@ async function generateFHIR(consultations: any[], options: any, user: any): Prom
     }
   }
 
-  bundle.entry.push(practitioner)
+  bundle.entry.push(practitioner as any)
 
   // Add consultation resources
   consultations.forEach(consultation => {
@@ -365,7 +369,7 @@ async function generateFHIR(consultations: any[], options: any, user: any): Prom
       }
     }
 
-    bundle.entry.push(encounter)
+    bundle.entry.push(encounter as any)
 
     if (options.includeTranscription && consultation.transcription) {
       const observation = {
@@ -390,7 +394,7 @@ async function generateFHIR(consultations: any[], options: any, user: any): Prom
         }
       }
 
-      bundle.entry.push(observation)
+      bundle.entry.push(observation as any)
     }
   })
 

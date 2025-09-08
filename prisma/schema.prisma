@@ -37,6 +37,8 @@ enum UserRole {
 enum ConsultationStatus {
   DRAFT
   IN_PROGRESS
+  TRANSCRIBING
+  PROCESSING
   COMPLETED
   ARCHIVED
 }

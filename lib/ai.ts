@@ -9,7 +9,7 @@ export class AIService {
   static async transcribeAudio(audioBuffer: Buffer): Promise<string> {
     try {
       const transcription = await openai.audio.transcriptions.create({
-        file: new File([new Uint8Array(audioBuffer)], 'audio.webm', { type: 'audio/webm' }),
+        file: new File([audioBuffer.buffer], 'audio.webm', { type: 'audio/webm' }),
         model: 'whisper-1',
         language: 'fr', // French for French medical context
         response_format: 'text',

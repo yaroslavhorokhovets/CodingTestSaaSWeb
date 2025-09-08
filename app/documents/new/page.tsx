@@ -18,7 +18,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { documentSchema, DocumentInput } from '@/lib/validation'
 import { Consultation } from '@/types'
-import { DocumentType } from '@prisma/client'
 
 const documentTypes = [
   { value: DocumentType.PRESCRIPTION, label: 'Ordonnance', icon: '💊' },

@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
           medicalSpecialty: user.medicalSpecialty,
           organization: user.organization,
           role: user.role,
-        } as AuthUser
+        }
       }
     })
   ],
